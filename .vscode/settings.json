@@ -1,0 +1,9 @@
+{
+  "terminal.integrated.shellIntegration.suggestEnabled": false,
+  "terminal.integrated.shellIntegration.enabled": false,
+  "gitlens.defaultDateFormat": "",
+  "editor.quickSuggestions": {
+    "other": false,
+    "comments": false,
+    "strings": false
+}}

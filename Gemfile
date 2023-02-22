@@ -12,6 +12,7 @@ gem "bootsnap", require: false
 gem "faraday"
 gem "rack-cors"
 gem "json"
+gem "graphql"
 
 group :development, :test do
   gem "pry"
@@ -19,4 +20,5 @@ group :development, :test do
 end
 
 group :development do
+  gem "graphiql-rails"
 end
