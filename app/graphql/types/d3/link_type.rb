@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Types
-  class LinkType < Types::BaseObject
+  class D3::LinkType < Types::BaseObject
     field :id, ID, null: false
     field :roles, [String]
 
