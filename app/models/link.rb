@@ -1,4 +1,4 @@
 class Link < ApplicationRecord
-	belongs_to :source, :class_name => 'Node'
-	belongs_to :target, :class_name => 'Node'
+	belongs_to :movie, optional: true
+	belongs_to :person, optional: true
 end

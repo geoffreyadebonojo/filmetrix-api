@@ -1,8 +1,8 @@
 class CreateLinks < ActiveRecord::Migration[7.0]
   def change
     create_table :links do |t|
-      t.integer :source_id, foreign_key: true
-      t.integer :target_id, foreign_key: true
+      t.integer :movie_id, foreign_key: true, allow_nil: true
+      t.integer :person_id, foreign_key: true, allow_nil: true
       t.text :roles
     end
   end
