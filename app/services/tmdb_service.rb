@@ -15,18 +15,22 @@ class TmdbService
 			tv << credit if credit[:media_type] == "tv"
 		end
 
-		movies.each do |credit|
-			roles = credit[:job] || credit[:character]
+		body[:crew].each do |credit|
+			movies << credit if credit[:media_type] == "movie"
+			tv << credit if credit[:media_type] == "tv"
+		end
+
+		movies.group_by{|x|x[:id]}.to_a.each do |m|
+			c = m[1].map{ |x|
+				roles = x[:job] || x[:character]
+			}
 
 			Link.create!({
 				person_id: id,
-				movie_id: credit[:id],
-				roles: roles
+				movie_id: m.first,
+				roles: c
 			})
 		end
-
-		binding.pry
-
 	end
 
 	def self.movie_details(id)

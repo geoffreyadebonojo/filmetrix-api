@@ -3,7 +3,7 @@ class CreateLinks < ActiveRecord::Migration[7.0]
     create_table :links do |t|
       t.integer :movie_id, foreign_key: true, allow_nil: true
       t.integer :person_id, foreign_key: true, allow_nil: true
-      t.text :roles
+      t.string :roles, array: true, default: []
     end
   end
 end

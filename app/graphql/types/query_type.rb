@@ -13,5 +13,10 @@ module Types
     def test_field
       "Hello World!"
     end
+
+    field :links, [Types::LinkType]
+    def links
+      Link.all
+    end
   end
 end

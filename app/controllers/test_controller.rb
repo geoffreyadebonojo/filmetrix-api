@@ -1,5 +1,5 @@
 class TestController < ApplicationController
   def show
-    render json: {g: 'hello'}
+    render json: Link.all
   end
 end

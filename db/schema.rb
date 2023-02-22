@@ -17,7 +17,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_22_005823) do
   create_table "links", force: :cascade do |t|
     t.integer "movie_id"
     t.integer "person_id"
-    t.text "roles"
+    t.string "roles", default: [], array: true
   end
 
   create_table "movies", force: :cascade do |t|
@@ -51,7 +51,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_22_005823) do
 
   create_table "people", force: :cascade do |t|
     t.boolean "adult"
-    t.string "also_known_as"
+    t.string "also_known_as", default: [], array: true
     t.string "biography"
     t.date "birthday"
     t.date "deathday"
