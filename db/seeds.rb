@@ -5,3 +5,16 @@
 #
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
+
+a=Node.create!
+b=Node.create!
+c=Node.create!
+d=Node.create!
+
+Link.create!(source:a, target:b)
+Link.create!(source:a, target:c)
+Link.create!(source:a, target:d)
+
+Link.create!(source:b, target:c)
+Link.create!(source:c, target:d)
+Link.create!(source:d, target:a)
