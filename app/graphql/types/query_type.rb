@@ -7,11 +7,11 @@ module Types
     field :nodes, [Types::D3::NodeType]
 
     def links
-      pids = [500]
-      mids = [137113, 75612, 56292]
+      pids = Person.find(500).id
+      mids = Movie.find(628).id
 
-      t= Link.where(person_id: pids)
-      .or(Link.where(movie_id: mids)
+      t= Link.where(person_id: [pids])
+      .or(Link.where(movie_id: [mids])
       ).map do |x|
         j = index.find_index("person-#{x.person_id}")
         k = index.find_index("movie-#{x.movie_id}")
@@ -22,6 +22,7 @@ module Types
           target: k,
           roles: x.roles.reject(&:empty?)
         }
+
       end.compact
     end
 

@@ -1,6 +1,7 @@
 {
   "source": "details",
   "adult": false,
+  "media_type": "movie",
   "backdrop_path": "/nH6hPhJq3EEv9CnBZgXU3IQnpJo.jpg",
   "belongs_to_collection": nil,
   "budget": 132000000,

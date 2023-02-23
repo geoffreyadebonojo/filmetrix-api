@@ -62,6 +62,7 @@ class TmdbService
 		body = JSON.parse(response.body).deep_symbolize_keys
 		
 		body["source"] = "details"
+		body["media_type"] = "movie"
 
 		# write_to_file("movie-#{id.to_s}-details", body)
 	end
@@ -72,6 +73,7 @@ class TmdbService
 		body = JSON.parse(response.body).deep_symbolize_keys
 
 		body["source"] = "details"
+		body["media_type"] = "person"
 
 		# write_to_file("person-#{id.to_s}-details", body)
 	end

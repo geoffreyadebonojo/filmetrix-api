@@ -1,6 +1,7 @@
 {
   "source": "details",
   "adult": false,
+  "media_type": "movie",
   "backdrop_path": "/3fChciF2G1wXHsyTfJD9y7uN6Il.jpg",
   "belongs_to_collection": {
     "id": 217704,
