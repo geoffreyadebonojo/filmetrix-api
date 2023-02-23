@@ -1,6 +1,7 @@
 class CreatePeople < ActiveRecord::Migration[7.0]
   def change
     create_table :people do |t|
+      t.integer :source
       t.boolean :adult
       t.string :also_known_as, array: true, default: []
       t.string :biography

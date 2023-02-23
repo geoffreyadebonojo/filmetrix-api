@@ -21,6 +21,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_22_005823) do
   end
 
   create_table "movies", force: :cascade do |t|
+    t.integer "source"
     t.boolean "adult"
     t.string "backdrop_path"
     t.json "belongs_to_collection"
@@ -50,6 +51,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_22_005823) do
   end
 
   create_table "people", force: :cascade do |t|
+    t.integer "source"
     t.boolean "adult"
     t.string "also_known_as", default: [], array: true
     t.string "biography"

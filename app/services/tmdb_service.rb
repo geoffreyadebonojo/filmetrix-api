@@ -19,15 +19,35 @@ class TmdbService
 		end
 
 		movies.group_by{|x|x[:id]}.to_a.each do |m|
-			c = m[1].map{ |x|
+			group = m[1]
+
+			c = group.map{ |x|
 				roles = x[:job] || x[:character]
 			}.reject{|y|y.empty?}
 
-			Link.create!({
-				person_id: id,
-				movie_id: m.first,
-				roles: c
-			})
+			movie = group.first
+
+			unless Movie.exists?(m[0])
+				movie["source"] = "credits"
+				Movie.create!(
+					movie.except(
+						:job,
+						:character, 
+						:credit_id, 
+						:order, 
+						:department
+					)
+				)
+			end
+
+			if Link.where(person_id: id).where(movie_id: m[0]).empty?
+				link = {
+					person_id: id,
+					movie_id: m[0],
+					roles: c
+				}
+				Link.create!(link)
+			end
 		end
 	end
 
@@ -35,14 +55,20 @@ class TmdbService
 		url = root + "/movie/" + id.to_s + "?" + key
 		response = Faraday.get url
 		body = JSON.parse(response.body).deep_symbolize_keys
+		
+		body["source"] = "details"
 
-		# write_to_file("movie-#{id.to_s}", body)
+		# write_to_file("movie-#{id.to_s}-details", body)
 	end
-
+	
 	def self.person_details(id)
 		url = root + "/person/" + id.to_s + "?" + key
 		response = Faraday.get url
 		body = JSON.parse(response.body).deep_symbolize_keys
+
+		body["source"] = "details"
+
+		# write_to_file("person-#{id.to_s}-details", body)
 	end
 	
 	def self.search(term)
@@ -58,6 +84,8 @@ class TmdbService
 		people = []
 		movies = []
 		tv =     []
+
+		# body[:source] = "search"
 
 		results.each do |r|
 			if r[:media_type] == "person"

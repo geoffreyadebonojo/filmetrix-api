@@ -1,6 +1,7 @@
 class CreateMovies < ActiveRecord::Migration[7.0]
   def change
     create_table :movies do |t|
+      t.integer :source
       t.boolean :adult
       t.string :backdrop_path
       t.json :belongs_to_collection
