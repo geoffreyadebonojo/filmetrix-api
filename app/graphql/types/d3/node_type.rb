@@ -2,11 +2,11 @@
 
 module Types
   class D3::NodeType < Types::BaseObject
-    field :_id, String
+    field :id, String
     field :name, String
     field :poster, String
 
-    def _id
+    def id
       object.full_id
     end
 
@@ -15,7 +15,12 @@ module Types
     end
 
     def poster
-      object.poster
+      poster = object.poster
+      poster.nil? ? "" : root+poster
+    end
+
+    def root
+      "https://image.tmdb.org/t/p/w185_and_h278_bestv2"
     end
   end
 end

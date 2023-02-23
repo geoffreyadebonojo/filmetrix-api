@@ -6,14 +6,14 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  links{
+  nodes {
+    id
+    name
+    poster
+  }
+  links {
     source
     target
     roles
-  }
-  nodes {
-    id: _id
-    name
-    poster
   }
 }

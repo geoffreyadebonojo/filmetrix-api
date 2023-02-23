@@ -2,17 +2,16 @@
 
 module Types
   class D3::LinkType < Types::BaseObject
-    field :id, ID, null: false
     field :source, Integer
     field :target, Integer
     field :roles, [String]
 
     def source 
-      object.person_id
+      object[:source]
     end
     
     def target
-      object.movie_id
+      object[:target]
     end
   end
 end

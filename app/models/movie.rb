@@ -10,6 +10,6 @@ class Movie < ApplicationRecord
   end
 
   def poster
-    [root, poster_path].join
+    poster_path
   end
 end

@@ -6,6 +6,6 @@ class Person < ApplicationRecord
   end
 
   def poster
-    [root, profile_path].join
+    profile_path
   end
 end

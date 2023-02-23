@@ -23,7 +23,7 @@ class TmdbService
 		movies.group_by{|x|x[:id]}.to_a.each do |m|
 			c = m[1].map{ |x|
 				roles = x[:job] || x[:character]
-			}
+			}.reject{|y|y.empty?}
 
 			Link.create!({
 				person_id: id,

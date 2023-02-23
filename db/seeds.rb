@@ -952,7 +952,18 @@ links = [
 ]
 
 
-Link.insert_all!(link)
+
+
+
+
+
+
+
+
+
+
+
+Link.insert_all!(links)
 
 
 
