@@ -41,14 +41,15 @@ class TmdbService
 			end
 
 			if Link.where(person_id: id).where(movie_id: m[0]).empty?
-				link = {
+				Link.create!({
 					person_id: id,
 					movie_id: m[0],
 					roles: c
-				}
-				Link.create!(link)
+				})
 			end
 		end
+
+		# write_to_file("person-#{id.to_s}-credits", body)
 	end
 
 	def self.movie_details(id)
