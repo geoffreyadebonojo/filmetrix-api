@@ -1,6 +1,4 @@
 class TmdbService
-
-
 	def self.person_credits(id)
 		url = root + "/person/" + id.to_s + "/combined_credits" + "?" + key
 
@@ -37,7 +35,8 @@ class TmdbService
 		url = root + "/movie/" + id.to_s + "?" + key
 		response = Faraday.get url
 		body = JSON.parse(response.body).deep_symbolize_keys
-		binding.pry
+
+		# write_to_file("movie-#{id.to_s}", body)
 	end
 
 	def self.person_details(id)
@@ -78,6 +77,10 @@ class TmdbService
 
 		Movie.insert_all!(movies)
 		Person.insert_all!(people)
+	end
+
+	def self.write_to_file(full_id, body)
+		File.write("db/#{full_id}.json", body.to_json)
 	end
 	
 	def self.query(term)

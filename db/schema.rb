@@ -23,7 +23,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_22_005823) do
   create_table "movies", force: :cascade do |t|
     t.boolean "adult"
     t.string "backdrop_path"
-    t.text "belongs_to_collection", default: [], array: true
+    t.json "belongs_to_collection"
     t.integer "budget"
     t.json "genres", default: [], array: true
     t.string "homepage"

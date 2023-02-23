@@ -3,7 +3,7 @@ class CreateMovies < ActiveRecord::Migration[7.0]
     create_table :movies do |t|
       t.boolean :adult
       t.string :backdrop_path
-      t.text :belongs_to_collection, array: true, default: []
+      t.json :belongs_to_collection
       t.integer :budget
       t.json :genres, array: true, default: []
       t.string :homepage
