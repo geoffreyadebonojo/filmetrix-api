@@ -18,7 +18,13 @@ class TmdbService
 			tv << credit if credit[:media_type] == "tv"
 		end
 
-		movies.group_by{|x|x[:id]}.to_a.each do |m|
+		generate_from_(movies, id)
+		
+		write_to_file("person-#{id.to_s}-credits", movies)
+	end
+
+	def self.generate_from_(entities, id)
+		entities.group_by{|x|x[:id]}.to_a.each do |m|
 			group = m[1]
 
 			c = group.map{ |x|
@@ -48,8 +54,6 @@ class TmdbService
 				})
 			end
 		end
-
-		# write_to_file("person-#{id.to_s}-credits", body)
 	end
 
 	def self.movie_details(id)
