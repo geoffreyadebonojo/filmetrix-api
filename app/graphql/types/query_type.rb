@@ -46,12 +46,14 @@ module Types
     end
 
     def links
-      pids = Person.find(500).id
-      mids = Movie.find(628).id
+      pids = Person.all.pluck(:id)
+      mids = Movie.all.pluck(:id)
 
-      t= Link.where(person_id: [pids])
-      .or(Link.where(movie_id: [mids])
-      ).map do |x|
+      t= Link.where(person_id: pids)
+      .or(Link.where(movie_id: mids)
+      ).first(20)
+      
+      t.map do |x|
         j = index.find_index("person-#{x.person_id}")
         k = index.find_index("movie-#{x.movie_id}")
         next if j.nil? || k.nil?
@@ -72,7 +74,8 @@ module Types
     end
     
     def nodes
-      [Person.all, Movie.all].flatten
+      # [Person.all, Movie.all].flatten
+      [Person.all, Movie.first(20)].flatten
     end
   end
 end

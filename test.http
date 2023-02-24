@@ -4,15 +4,20 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  link(movieIds: [628], personIds: [500]) {
+  nodes {
+    id
+    name
+    poster
+  }
+  links {
     source
     target
     roles
   }
 }
 
-# nodes {
-#   id
-#   name
-#   poster
+# link(movieIds: [628], personIds: [500]) {
+#   source
+#   target
+#   roles
 # }
