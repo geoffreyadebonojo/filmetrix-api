@@ -4,7 +4,7 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  link(movieId: 74) {
+  link(movieIds: [628], personIds: [500]) {
     source
     target
     roles
