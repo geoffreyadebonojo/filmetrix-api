@@ -5,6 +5,16 @@ module Types
     # include GraphQL::Types::Relay::HasNodesField
     field :links, [Types::D3::LinkType]
     field :nodes, [Types::D3::NodeType]
+    
+    field :link, [Types::D3::LinkType], null: true do
+      description "Find a link by id"
+      argument :movie_id, ID
+    end
+
+    def link(movie_id)
+      Link.where(movie_id)
+    end
+
 
     def links
       pids = Person.find(500).id
