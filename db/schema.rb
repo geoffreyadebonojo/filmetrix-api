@@ -18,6 +18,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_22_005823) do
     t.integer "movie_id"
     t.integer "person_id"
     t.string "roles", default: [], array: true
+    t.integer "order"
   end
 
   create_table "movies", force: :cascade do |t|

@@ -3,79 +3,73 @@ module Types
     # Add `node(id: ID!) and `nodes(ids: [ID!]!)`
     # include GraphQL::Types::Relay::HasNodeField
     # include GraphQL::Types::Relay::HasNodesField
-    field :links, [Types::D3::LinkType]
-    field :nodes, [Types::D3::NodeType]
-    
-    field :link, [Types::D3::LinkType], null: true do
-      description "Find a link by id"
+    # field :links, [Types::D3::LinkType]
+    field :nodes, [Types::D3::NodeType], null: true do
       argument :movie_ids, [ID]
       argument :person_ids, [ID]
+      argument :count, Integer
     end
 
-    def link(args)
-      set_index = node_index_for_network(args)
-
-      Link.where(person_id: args[:person_ids])
-      .or(Link.where(movie_id: args[:movie_ids])
-      ).map do |x|
-        j = set_index.find_index("person-#{x.person_id}")
-        k = set_index.find_index("movie-#{x.movie_id}")
-        next if j.nil? || k.nil?
-
-        {
-          source: j,
-          target: k,
-          roles: x.roles.reject(&:empty?)
-        }
-      end.compact
+    field :links, [Types::D3::LinkType], null: true do
+      argument :movie_ids, [ID]
+      argument :person_ids, [ID]
+      argument :count, Integer
     end
 
-    def node_index_for_network(ids=[])
-      selected_nodes(ids).map { |x| 
-        "#{x.media_type}-#{x.id}"
-      }
-    end
-    
-    def selected_nodes(ids)
-      movie_ids = ids[:movie_ids]
-      person_ids = ids[:person_ids]
-      return [
-        Person.where(id: person_ids),
-        Movie.where(id: movie_ids)
-      ].flatten
-    end
+    def assembler(args)
+      person_ids = args[:person_ids]
+      movie_ids = args[:movie_ids]
+      count = args[:count]
 
-    def links
-      pids = Person.all.pluck(:id)
-      mids = Movie.all.pluck(:id)
-
-      t= Link.where(person_id: pids)
-      .or(Link.where(movie_id: mids)
-      ).first(20)
+      people = Person.where(id: person_ids)
+      movies = Movie.where(id: movie_ids)
       
-      t.map do |x|
-        j = index.find_index("person-#{x.person_id}")
-        k = index.find_index("movie-#{x.movie_id}")
-        next if j.nil? || k.nil?
+      a = []
+      a << people
+      people.each do |person|
+        a << person.movies.order(vote_count: :desc).first(count)
+      end
 
-        {
-          source: j,
-          target: k,
-          roles: x.roles.reject(&:empty?)
-        }
+      a << movies
 
-      end.compact
+      movies.map do |movie|
+        a << movie.people.first(count)
+      end
+
+      a.flatten(3)
     end
 
-    def index
-      nodes.map do |x|
-        "#{x.media_type}-#{x.id}"
-      end
+
+    def links(args)
+      nodes = assembler(args)
+
+      links = nodes.map{ |x|
+        y = x.links.first(args[:count]).map { |z|
+          next if z.person_id.nil? || z.movie_id.nil?
+
+          index = nodes.map{ |x| "#{x.media_type}-#{x.id}"}
+
+          pid = "person-#{z.person_id}"
+          next unless index.include?(pid)
+          
+          mid = "movie-#{z.movie_id}"
+          next unless index.include?(mid)
+          
+          {
+            source: pid,
+            target: mid,
+            roles: z.roles.reject(&:empty?)
+          }
+        }
+      }.flatten(3).compact.uniq
+
+      return links
     end
     
-    def nodes
-      # [Person.all, Movie.all].flatten
-      [Person.all, Movie.first(20)].flatten
+    def nodes(args)
+      nodes = assembler(args).uniq
+
+      return nodes
     end
   end
 end

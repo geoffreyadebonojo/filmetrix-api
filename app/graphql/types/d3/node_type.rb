@@ -7,7 +7,7 @@ module Types
     field :poster, String
 
     def id
-      object.full_id
+      [object.media_type, object.id].join("-")
     end
 
     def name

@@ -1,4 +1,5 @@
 class TmdbService
+	
 	def self.person_credits(id)
 		url = root + "/person/" + id.to_s + "/combined_credits" + "?" + key
 
@@ -50,7 +51,8 @@ class TmdbService
 				Link.create!({
 					person_id: id,
 					movie_id: m[0],
-					roles: c
+					roles: c,
+					order: movie[:order] #credit, actually
 				})
 			end
 		end

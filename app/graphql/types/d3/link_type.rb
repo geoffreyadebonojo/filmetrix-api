@@ -4,12 +4,11 @@ module Types
   class D3::LinkType < Types::BaseObject
     field :id, ID
 
-    field :mid, ID
-    field :source, Integer
-    field :target, Integer
+    field :source, String
+    field :target, String
     field :roles, [String]
 
-    def source 
+    def source
       object[:source]
     end
     

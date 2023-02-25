@@ -1,5 +1,6 @@
 class Person < ApplicationRecord
   has_many :links
+  has_many :movies, through: :links
 
   enum source: {
     "credits": 0,
