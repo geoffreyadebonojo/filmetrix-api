@@ -17,7 +17,7 @@ module Types
     end
 
     def links(args)
-      nodes = assembler(args)
+      nodes = nodes(args)
 
       links = nodes.map{ |x|
         y = x.links.first(args[:count]).map { |z|
@@ -43,9 +43,18 @@ module Types
     end
     
     def nodes(args)
-      nodes = assembler(args).uniq
-
-      return nodes
+      n = assembler(args).uniq
+      # nodes = []
+      # n.filter{|x|x[:media_type]=="person"}.each { |pe|
+      #   nodes << pe
+      #   nodes << pe.movies.first(args[:count])
+      # }
+      # n.filter{|x|x[:media_type]!="person"}.each { |m|
+      #   nodes << m
+      #   nodes << m.people.first(args[:count])
+      # }
+      # return nodes.flatten(3).compact.uniq
+      return n
     end
 
     private
@@ -55,17 +64,35 @@ module Types
       movie_ids = args[:movie_ids]
       count = args[:count]
 
-      people = Person.where(id: person_ids)
-      movies = Movie.where(id: movie_ids)
-      
+      people = []
+      movies = []
+
+      person_ids.map do |person_id|
+        if Person.exists?(person_id)
+          people << Person.find(person_id)
+        else
+          TmdbService.person_credits(person_id[:id])
+          people << TmdbService.person_details(person_id[:id])
+        end
+      end.flatten(2)
+
+      movie_ids.map do |movie_id|
+        if Movie.exists?(movie_id)
+          movies << Movie.find(movie_id)
+        else
+          TmdbService.movie_credits(movie_id[:id])
+          movies << TmdbService.movie_details(movie_id[:id])
+        end
+      end.flatten(2)
+
       a = []
+
       a << people
       people.each do |person|
         a << person.movies.order(vote_count: :desc).first(count)
       end
 
       a << movies
-
       movies.map do |movie|
         a << movie.people.first(count)
       end
