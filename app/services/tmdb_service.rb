@@ -1,4 +1,60 @@
 class TmdbService
+
+	def self.movie_credits(id)
+		url = root + "/movie/" + id.to_s + "/credits" + "?" + key
+
+		response = Faraday.get url
+		body = JSON.parse(response.body).deep_symbolize_keys
+
+		people = []
+
+		[body[:cast],body[:crew]].flatten.group_by{|x|x[:id]}.to_a.each do |pe|
+			group = pe[1]
+
+			c = group.map{ |x|
+				roles = x[:job] || x[:character]
+			}.reject{|y|y.empty?}
+
+			d = group.map{ |x|
+				departments = x[:department] || "Acting"
+			}.reject{|y|y.empty?}
+
+			person = group.first
+
+			unless Person.exists?(pe[0])
+				person["source"] = "credits"
+				person["media_type"] = "person"
+
+				people <<	person.except(
+					:gender,
+					:cast_id,
+					:character,
+					:job,
+					:department,
+					:credit_id,
+					:order
+				)
+			end
+			
+			if Link.where(person_id: pe[0]).where(movie_id: id).empty?
+				Link.create!({
+					person_id: pe[0],
+					movie_id: id,
+					roles: c,
+					department: d,
+					order: person[:order] || nil
+				})
+			end
+		end
+		
+		generate_person_credits(people, id)
+		# write_to_file("movie-#{id.to_s}-credits", people)
+		Person.insert_all!(people)
+	end
+
+	def generate_person_credits(people, id)
+
+	end
 	
 	def self.person_credits(id)
 		url = root + "/person/" + id.to_s + "/combined_credits" + "?" + key
@@ -19,13 +75,13 @@ class TmdbService
 			tv << credit if credit[:media_type] == "tv"
 		end
 
-		generate_from_(movies, id)
+		generate_movie_credits(movies, id)
 		
 		write_to_file("person-#{id.to_s}-credits", movies)
 	end
 
-	def self.generate_from_(entities, id)
-		entities.group_by{|x|x[:id]}.to_a.each do |m|
+	def self.generate_movie_credits(movies, id)
+		movies.group_by{|x|x[:id]}.to_a.each do |m|
 			group = m[1]
 
 			c = group.map{ |x|

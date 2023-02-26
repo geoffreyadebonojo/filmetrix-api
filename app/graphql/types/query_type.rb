@@ -16,30 +16,6 @@ module Types
       argument :count, Integer
     end
 
-    def assembler(args)
-      person_ids = args[:person_ids]
-      movie_ids = args[:movie_ids]
-      count = args[:count]
-
-      people = Person.where(id: person_ids)
-      movies = Movie.where(id: movie_ids)
-      
-      a = []
-      a << people
-      people.each do |person|
-        a << person.movies.order(vote_count: :desc).first(count)
-      end
-
-      a << movies
-
-      movies.map do |movie|
-        a << movie.people.first(count)
-      end
-
-      a.flatten(3)
-    end
-
-
     def links(args)
       nodes = assembler(args)
 
@@ -70,6 +46,31 @@ module Types
       nodes = assembler(args).uniq
 
       return nodes
+    end
+
+    private
+
+    def assembler(args)
+      person_ids = args[:person_ids]
+      movie_ids = args[:movie_ids]
+      count = args[:count]
+
+      people = Person.where(id: person_ids)
+      movies = Movie.where(id: movie_ids)
+      
+      a = []
+      a << people
+      people.each do |person|
+        a << person.movies.order(vote_count: :desc).first(count)
+      end
+
+      a << movies
+
+      movies.map do |movie|
+        a << movie.people.first(count)
+      end
+
+      a.flatten(3)
     end
   end
 end
