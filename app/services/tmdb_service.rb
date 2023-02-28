@@ -1,5 +1,54 @@
 class TmdbService
 
+		
+	def self.search(term)
+		url = root + "/search/multi?" + key + query(term)
+		response = Faraday.get url
+		body = JSON.parse(response.body).deep_symbolize_keys
+	
+		return body[:results]
+	end
+
+	def self.person_details(id)
+		url = root + "/person/" + id + "?" + key
+		
+		tag = "details-#{id}"
+		api_hit = false
+
+		details = Rails.cache.fetch(tag) do
+			api_hit = true
+			response = Faraday.get url
+			body = JSON.parse(response.body).deep_symbolize_keys
+			body[:media_type] = "person"
+			return body
+		end
+
+		if api_hit
+			puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
+		else
+			puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
+		end
+
+		return details
+	end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	def self.movie_credits(id)
 		url = root + "/movie/" + id.to_s + "/credits" + "?" + key
 
@@ -50,9 +99,6 @@ class TmdbService
 		generate_person_credits(people, id)
 		# write_to_file("movie-#{id.to_s}-credits", people)
 		Person.insert_all!(people)
-	end
-
-	def generate_person_credits(people, id)
 	end
 	
 	def self.person_credits(id)
@@ -124,23 +170,6 @@ class TmdbService
 		# write_to_file("movie-#{id.to_s}-details", body)
 	end
 	
-	def self.person_details(id)
-		url = root + "/person/" + id.to_s + "?" + key
-		response = Faraday.get url
-		body = JSON.parse(response.body).deep_symbolize_keys
-
-		body["source"] = "details"
-		body["media_type"] = "person"
-
-		# write_to_file("person-#{id.to_s}-details", body)
-	end
-	
-	def self.search(term)
-		url = root + "/search/multi?" + key + query(term)
-		response = Faraday.get url
-		body = JSON.parse(response.body).deep_symbolize_keys
-		self.build_from_results(body)
-	end
 
 	def self.build_from_results(body)
 		results = body[:results]

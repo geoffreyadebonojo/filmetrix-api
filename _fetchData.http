@@ -1,0 +1,17 @@
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL
+
+query {
+  nodes(personIds: [500], movieIds: [], count: 15) {
+    id
+    name
+    poster
+  }
+  links(personIds: [500], movieIds: [], count: 15) {
+    source
+    target
+    roles
+  }
+}

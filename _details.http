@@ -1,0 +1,21 @@
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL
+
+query {
+  details(id: 500) {
+    id
+    alsoKnownAs
+    biography
+    birthday
+    deathday
+    homepage
+    imdbId
+    name
+    knownForDepartment
+    placeOfBirth
+    popularity
+    poster
+  }    
+}

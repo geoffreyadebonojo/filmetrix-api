@@ -17,13 +17,34 @@ module Types
     field :search, [Types::D3::NodeType], null: true do
       argument :term, String
     end
+
+    field :details, Types::D3::DetailType, null: true do
+      argument :id, ID
+    end
+
+    def details(args)
+      id = args[:id]
+      TmdbService.person_details(id)
+    end
     
     def search(args)
-      # TmdbService.search(args)
-      body = eval(File.read('./db/person-500-search-result.json'))
+      # body = eval(File.read('./db/person-500-search-result.json'))
       # x= TmdbService.build_from_results(search_result)
 
-      results = body[:results]
+      api_hit = false
+      tag = "search-#{args[:term]}"
+
+      results = Rails.cache.fetch(tag) do
+        api_hit = true
+        TmdbService.search(args[:term])
+      end
+
+      if api_hit
+        puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
+      else
+        puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
+      end
+
       nodes = []
       
       results.each do |r|
@@ -39,10 +60,18 @@ module Types
             node = OpenStruct.new
             node.media_type = m[:media_type]
             node.id = m[:id]
-            node.name = m[:title]
+            node.name = m[:title] || m[:original_name]
             node.poster = m[:poster_path]
             nodes << node
           end
+        else
+
+          node = OpenStruct.new
+          node.media_type = r[:media_type]
+          node.id = r[:id]
+          node.name = r[:title] || r[:original_name]
+          node.poster = r[:poster_path]
+          nodes << node
         end
       end
 

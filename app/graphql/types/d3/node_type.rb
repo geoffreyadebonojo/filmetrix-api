@@ -14,6 +14,8 @@ module Types
       object.name
     end
 
+    # add placeholder poster here? 
+
     def poster
       poster = object.poster
       poster.nil? ? "" : root+poster
