@@ -53,7 +53,6 @@ class TmdbService
 	end
 
 	def generate_person_credits(people, id)
-
 	end
 	
 	def self.person_credits(id)

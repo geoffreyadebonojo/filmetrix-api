@@ -4,14 +4,22 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  nodes(personIds: [500], movieIds: [74], count: 15) {
-    id
-    name
-    poster
-  }
-  links(personIds: [500], movieIds: [74], count: 15) {
-    source
-    target
-    roles
-  }
+  search(term:"TOM CRUISE") {
+    id            
+    name         
+    poster         
+  }    
 }
+
+# query {
+#   nodes(personIds: [500], movieIds: [], count: 15) {
+#     id
+#     name
+#     poster
+#   }
+#   links(personIds: [500], movieIds: [], count: 15) {
+#     source
+#     target
+#     roles
+#   }
+# }

@@ -1,9 +1,5 @@
 module Types
   class QueryType < Types::BaseObject
-    # Add `node(id: ID!) and `nodes(ids: [ID!]!)`
-    # include GraphQL::Types::Relay::HasNodeField
-    # include GraphQL::Types::Relay::HasNodesField
-    # field :links, [Types::D3::LinkType]
     field :nodes, [Types::D3::NodeType], null: true do
       argument :movie_ids, [ID]
       argument :person_ids, [ID]
@@ -15,9 +11,58 @@ module Types
       argument :person_ids, [ID]
       argument :count, Integer
     end
+    
+    field :search, [Types::D3::NodeType], null: true do
+      argument :term, String
+    end
+    
+    def search(args)
+      # TmdbService.search(args)
+      body = eval(File.read('./db/person-500-search-result.json'))
+      # x= TmdbService.build_from_results(search_result)
+
+      results = body[:results]
+      nodes = []
+      links = []
+
+      results.each do |r|
+        if r[:media_type] == "person"
+          nodes << {
+            id: "person-#{r[:id]}",
+            name: r[:name],
+            poster: r[:profile_path]
+          }
+          r[:known_for].each do |m|
+            if m[:media_type] == "movie"
+              nodes << {
+                id: "movie-#{m[:id]}",
+                name: m[:title],
+                poster: m[:poster_path]
+              }
+            elsif m[:media_type] == "tv"
+              nodes << {
+                id: "tv-#{m[:id]}",
+                name: m[:title],
+                poster: m[:poster_path]
+              }
+            end
+
+            links << {
+              source: r[:id],
+              target: m[:id]
+            }
+          end
+        end
+      end
+
+      return { 
+        nodes: nodes,
+        links: links
+      }
+    end
 
     def links(args)
-      nodes = nodes(args)
+      nodes = assembler(args)
 
       links = nodes.map{ |x|
         y = x.links.first(args[:count]).map { |z|
