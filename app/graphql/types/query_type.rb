@@ -1,3 +1,5 @@
+require "ostruct"
+
 module Types
   class QueryType < Types::BaseObject
     field :nodes, [Types::D3::NodeType], null: true do
@@ -23,42 +25,28 @@ module Types
 
       results = body[:results]
       nodes = []
-      links = []
-
+      
       results.each do |r|
         if r[:media_type] == "person"
-          nodes << {
-            id: "person-#{r[:id]}",
-            name: r[:name],
-            poster: r[:profile_path]
-          }
-          r[:known_for].each do |m|
-            if m[:media_type] == "movie"
-              nodes << {
-                id: "movie-#{m[:id]}",
-                name: m[:title],
-                poster: m[:poster_path]
-              }
-            elsif m[:media_type] == "tv"
-              nodes << {
-                id: "tv-#{m[:id]}",
-                name: m[:title],
-                poster: m[:poster_path]
-              }
-            end
+          node = OpenStruct.new
+          node.media_type = r[:media_type]
+          node.id = r[:id]
+          node.name = r[:name]
+          node.poster = r[:profile_path]
+          nodes << node
 
-            links << {
-              source: r[:id],
-              target: m[:id]
-            }
+          r[:known_for].each do |m|
+            node = OpenStruct.new
+            node.media_type = m[:media_type]
+            node.id = m[:id]
+            node.name = m[:title]
+            node.poster = m[:poster_path]
+            nodes << node
           end
         end
       end
 
-      return { 
-        nodes: nodes,
-        links: links
-      }
+      return nodes
     end
 
     def links(args)
