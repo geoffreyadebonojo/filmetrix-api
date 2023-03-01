@@ -16,7 +16,6 @@ module Types
     field :poster, String
 
     def id
-      binding.pry
       [object[:media_type], object[:id]].join("-")
     end
 
