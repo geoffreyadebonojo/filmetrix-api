@@ -17,18 +17,26 @@ class CreditManager
     nodes << pluck(:id, :name, :poster)
 
     {
-      links: links.flatten,
-      nodes: nodes.flatten
+      nodes: nodes.flatten,
+      links: links.flatten
     }
   end
 
-  def links()
+  def links
     pluck(:id, :media_type, :roles).map do |c|
-      {
-        source: c[:id],
-        target: anchor[:full_id],
-        roles: c[:roles]
-      }
+      if c[:media_type] == 'person'
+        {
+          source: c[:id],
+          target: anchor[:full_id],
+          roles: c[:roles]
+        }
+      else
+        {
+          source: anchor[:full_id],
+          target: c[:id],
+          roles: c[:roles]
+        }
+      end
     end
   end
 

@@ -1,6 +1,4 @@
-class TmdbService
-
-		
+class TmdbService		
 	def self.search(term)
 		url = root + "/search/multi?" + key + query(term)
 		response = Faraday.get url
@@ -8,7 +6,6 @@ class TmdbService
 	
 		return body[:results]
 	end
-
 
 	def self.person_details(id)
 		url = root + "/person/" + id + "?" + key
@@ -56,7 +53,6 @@ class TmdbService
 
 		return details	
 	end
-	
 
 	def self.movie_credits(id)
 		url = root + "/movie/" + id.to_s + "/credits" + "?" + key

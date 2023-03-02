@@ -35,14 +35,7 @@ module Types
     end
     
     def search(args)
-      # body = eval(File.read('./db/person-500-search-result.json'))
-      # x= TmdbService.build_from_results(search_result)
 
-      # api_hit = false
-      # tag = "search-#{args[:term]}"
-
-      # results = Rails.cache.fetch(tag) do
-      #   api_hit = true
       results = TmdbService.search(args[:term])
       # end
 
@@ -58,7 +51,7 @@ module Types
         if r[:media_type] == "person"
           node = OpenStruct.new
           node.media_type = r[:media_type]
-          node.id = r[:id]
+          node.id = [r[:media_type],r[:id]].join("-")
           node.name = r[:name]
           node.poster = r[:profile_path]
           nodes << node
@@ -66,7 +59,7 @@ module Types
           r[:known_for].each do |m|
             node = OpenStruct.new
             node.media_type = m[:media_type]
-            node.id = m[:id]
+            node.id =[m[:media_type],m[:id]].join("-")
             node.name = m[:title] || m[:original_name]
             node.poster = m[:poster_path]
             nodes << node
@@ -75,7 +68,7 @@ module Types
 
           node = OpenStruct.new
           node.media_type = r[:media_type]
-          node.id = r[:id]
+          node.id = [r[:media_type],r[:id]].join("-")
           node.name = r[:title] || r[:original_name]
           node.poster = r[:poster_path]
           nodes << node
@@ -134,18 +127,18 @@ module Types
 
       movie_creds = movie_ids.each do |mids|
         x = TmdbService.movie_credits(mids)
-        nodes << x[:nodes].first(count)
+        nodes << x[:nodes].first(count+1)
         links << x[:links].first(count)
       end
-
 
       person_creds = person_ids.each do |pids|
         x = TmdbService.person_credits(pids)
-        nodes << x[:nodes].first(count)
+        nodes << x[:nodes].first(count+1)
         links << x[:links].first(count)
       end
       
-      # need to merge here?
+      # might not be the best way to manade the +1 links to nodes issue
+
       {
         nodes: nodes.flatten.uniq,
         links: links.flatten.uniq
