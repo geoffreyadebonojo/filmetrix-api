@@ -136,34 +136,40 @@ module Types
       people = []
       movies = []
 
-      person_ids.map do |person_id|
-        if Person.exists?(person_id)
-          people << Person.find(person_id)
-        else
-          TmdbService.person_credits(person_id)
-          people << TmdbService.person_details(person_id)
-        end
-      end.flatten(2)
+      movie_ids.map do |mids|
+        TmdbService.movie_credits(mids)
+      end
 
-      movie_ids.map do |movie_id|
-        if Movie.exists?(movie_id)
-          movies << Movie.find(movie_id)
-        else
-          TmdbService.movie_credits(movie_id)
-          movies << TmdbService.movie_details(movie_id)
-        end
-      end.flatten(2)
+      # person_ids.map do |person_id|
+      #   if Person.exists?(person_id)
+      #     people << Person.find(person_id)
+      #   else
+      #     TmdbService.person_credits(person_id)
+      #     people << TmdbService.person_details(person_id)
+      #   end
+      # end.flatten(2)
+
+      # movie_ids.map do |movie_id|
+      #   if Movie.exists?(movie_id)
+      #     movies << Movie.find(movie_id)
+      #   else
+      #     TmdbService.movie_credits(movie_id)
+      #     movies << TmdbService.movie_details(movie_id)
+      #   end
+      # end.flatten(2)
 
       a = []
 
       a << people
       people.each do |person|
-        a << person.movies.order(vote_count: :desc).first(count)
+        # a << person.movies.order(vote_count: :desc).first(count)
+
       end
 
       a << movies
       movies.map do |movie|
-        a << movie.people.first(count)
+        # a << movie.people.first(count)
+
       end
 
       a.flatten(3)

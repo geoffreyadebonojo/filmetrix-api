@@ -4,13 +4,14 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  details(id:500, entity:"movie") {
+  nodes(personIds: [], movieIds: [137113], count: 15) {
     id
-    summary
-    year
-    imdbId
     name
-    popularity
     poster
-  }    
+  }
+  links(personIds: [], movieIds: [137113], count: 15) {
+    source
+    target
+    roles
+  }
 }
