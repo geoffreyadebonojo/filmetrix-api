@@ -20,30 +20,37 @@ module Types
 
     field :details, Types::D3::DetailType, null: true do
       argument :id, ID
+      argument :entity, String
     end
 
     def details(args)
       id = args[:id]
-      TmdbService.person_details(id)
+      entity = args[:entity]
+
+      if entity == 'person'
+        TmdbService.person_details(id)
+      else
+        TmdbService.movie_details(id)
+      end
     end
     
     def search(args)
       # body = eval(File.read('./db/person-500-search-result.json'))
       # x= TmdbService.build_from_results(search_result)
 
-      api_hit = false
-      tag = "search-#{args[:term]}"
+      # api_hit = false
+      # tag = "search-#{args[:term]}"
 
-      results = Rails.cache.fetch(tag) do
-        api_hit = true
-        TmdbService.search(args[:term])
-      end
+      # results = Rails.cache.fetch(tag) do
+      #   api_hit = true
+      results = TmdbService.search(args[:term])
+      # end
 
-      if api_hit
-        puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
-      else
-        puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
-      end
+      # if api_hit
+      #   puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
+      # else
+      #   puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
+      # end
 
       nodes = []
       
@@ -133,8 +140,8 @@ module Types
         if Person.exists?(person_id)
           people << Person.find(person_id)
         else
-          TmdbService.person_credits(person_id[:id])
-          people << TmdbService.person_details(person_id[:id])
+          TmdbService.person_credits(person_id)
+          people << TmdbService.person_details(person_id)
         end
       end.flatten(2)
 
@@ -142,8 +149,8 @@ module Types
         if Movie.exists?(movie_id)
           movies << Movie.find(movie_id)
         else
-          TmdbService.movie_credits(movie_id[:id])
-          movies << TmdbService.movie_details(movie_id[:id])
+          TmdbService.movie_credits(movie_id)
+          movies << TmdbService.movie_details(movie_id)
         end
       end.flatten(2)
 

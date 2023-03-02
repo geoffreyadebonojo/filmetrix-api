@@ -4,8 +4,8 @@ module Types
   class D3::DetailType < Types::BaseObject
     field :id, String
     field :also_known_as, [String]
-    field :biography, String
-    field :birthday, String
+    field :summary, String
+    field :year, String
     field :deathday, String
     field :homepage, String
     field :imdb_id, String
@@ -16,6 +16,7 @@ module Types
     field :poster, String
 
     def id
+binding.pry
       [object[:media_type], object[:id]].join("-")
     end
 
@@ -23,16 +24,18 @@ module Types
       object[:also_known_as]
     end
 
-    def biography
-      object[:biography]
+    def summary
+      object[:biography] || object[:overview]
     end
 
-    def birthday
-      object[:birthday]
+    def year
+      Date.parse(object[:birthday]).year
     end
 
     def deathday
-      object[:deathday]
+      if object[:deathday].present?
+        Date.parse(object[:deathday]).year
+      end
     end
 
     def homepage

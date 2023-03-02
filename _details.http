@@ -4,11 +4,11 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  details(id: 500) {
+  details(id: 500, entity:"person") {
     id
     alsoKnownAs
-    biography
-    birthday
+    summary
+    year
     deathday
     homepage
     imdbId

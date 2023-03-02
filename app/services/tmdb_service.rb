@@ -12,7 +12,7 @@ class TmdbService
 	def self.person_details(id)
 		url = root + "/person/" + id + "?" + key
 		
-		tag = "details-#{id}"
+		tag = "details-person-#{id}"
 		api_hit = false
 
 		details = Rails.cache.fetch(tag) do
@@ -33,7 +33,30 @@ class TmdbService
 	end
 
 
+	def self.movie_details(id)
+		url = root + "/movie/" + id.to_s + "?" + key
 
+		tag = "details-movie-#{id}"
+		api_hit = false
+
+		details = Rails.cache.fetch(tag) do
+			api_hit = true
+			response = Faraday.get url
+			body = JSON.parse(response.body).deep_symbolize_keys
+			body["source"] = "details"
+			body["media_type"] = "movie"
+			return body
+		end
+
+		if api_hit
+			puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
+		else
+			puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
+		end
+
+		return details	
+	end
+	
 
 
 
@@ -158,18 +181,6 @@ class TmdbService
 			end
 		end
 	end
-
-	def self.movie_details(id)
-		url = root + "/movie/" + id.to_s + "?" + key
-		response = Faraday.get url
-		body = JSON.parse(response.body).deep_symbolize_keys
-		
-		body["source"] = "details"
-		body["media_type"] = "movie"
-
-		# write_to_file("movie-#{id.to_s}-details", body)
-	end
-	
 
 	def self.build_from_results(body)
 		results = body[:results]
