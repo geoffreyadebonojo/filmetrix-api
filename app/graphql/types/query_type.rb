@@ -134,19 +134,21 @@ module Types
 
       movie_creds = movie_ids.each do |mids|
         x = TmdbService.movie_credits(mids)
-        nodes << x[:nodes]
-        links << x[:links]
+        nodes << x[:nodes].first(count)
+        links << x[:links].first(count)
       end
 
 
-      # person_creds = person_ids.map do |pids|
-      #   TmdbService.person_credits(pids).first(count)
-      # end
-
-
+      person_creds = person_ids.each do |pids|
+        x = TmdbService.person_credits(pids)
+        nodes << x[:nodes].first(count)
+        links << x[:links].first(count)
+      end
+      
+      # need to merge here?
       {
-        nodes: nodes.flatten,
-        links: links.flatten
+        nodes: nodes.flatten.uniq,
+        links: links.flatten.uniq
       }
     end
   end

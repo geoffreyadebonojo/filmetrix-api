@@ -17,8 +17,8 @@ class CreditManager
     nodes << pluck(:id, :name, :poster)
 
     {
-      links: links,
-      nodes: nodes
+      links: links.flatten,
+      nodes: nodes.flatten
     }
   end
 
