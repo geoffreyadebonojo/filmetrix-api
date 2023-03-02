@@ -1,8 +1,35 @@
 class CreditManager
-  attr_reader :all
+  attr_reader :anchor, :all
 
-  def initialize(credit_hashes)
+  def initialize(anchor, credit_hashes)
+    @anchor = anchor
     @all = credit_hashes
+  end
+
+  def data
+    nodes = []
+
+    nodes << {
+      id: anchor[:full_id],
+      name: anchor[:name],
+      poster: anchor[:poster]
+    }
+    nodes << pluck(:id, :name, :poster)
+
+    {
+      links: links,
+      nodes: nodes
+    }
+  end
+
+  def links()
+    pluck(:id, :media_type, :roles).map do |c|
+      {
+        source: c[:id],
+        target: anchor[:full_id],
+        roles: c[:roles]
+      }
+    end
   end
 
   def pluck(*keys)
@@ -15,18 +42,17 @@ class CreditManager
 
   def find_by(*args)
     if [:id, :name].exclude?(args.first)
-      raise "only accepts :id, :name"
+      raise "only accepts :id, :name, :full_id"
     else
       all.find{|x| x[args.first]==args.last}
     end
   end
-
-  # sort_by(:order, :desc)
+  
   def sort_by(*args)
+    # sort_by(:order, :desc)
     if [:popularity, :order].exclude?(args.first)
       raise "only accepts first arg :popularity, :order"
     else
-      actors = includes_department("Acting")
       if args.last == :asc
         actors.sort_by { |k| k[args.first] }.reverse
       elsif args.last == :desc
@@ -48,8 +74,12 @@ class CreditManager
   def includes_role(role)
     all.filter{|x|x[:roles].map{|x|x.downcase}.include?(role.downcase)}
   end
+
+  def actors
+    all.filter{|x|x[:departments].map{|x|x.downcase}.include?("acting")}
+  end
   
   def includes_department(dept)
-    all.filter{|x|x[:departments].map{|x|x.downcase}.include?(dept.downcase)}
+    all.filter{|x|x[:departments].map{|x|x.downcase}.include?(dept)}
   end
 end

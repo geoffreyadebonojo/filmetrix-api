@@ -86,33 +86,28 @@ module Types
     end
 
     def links(args)
-      nodes = assembler(args)
-
-      links = nodes.map{ |x|
-        y = x.links.first(args[:count]).map { |z|
-          next if z.person_id.nil? || z.movie_id.nil?
-
-          index = nodes.map{ |x| "#{x.media_type}-#{x.id}"}
-
-          pid = "person-#{z.person_id}"
-          next unless index.include?(pid)
-          
-          mid = "movie-#{z.movie_id}"
-          next unless index.include?(mid)
-          
-          {
-            source: pid,
-            target: mid,
-            roles: z.roles.reject(&:empty?)
-          }
-        }
-      }.flatten(3).compact.uniq
-
-      return links
+      # nodes = assembler(args)
+      # links = nodes.map{ |x|
+      #   y = x.links.first(args[:count]).map { |z|
+      #     next if z.person_id.nil? || z.movie_id.nil?
+      #     index = nodes.map{ |x| "#{x.media_type}-#{x.id}"}
+      #     pid = "person-#{z.person_id}"
+      #     next unless index.include?(pid)
+      #     mid = "movie-#{z.movie_id}"
+      #     next unless index.include?(mid)
+      #     {
+      #       source: pid,
+      #       target: mid,
+      #       roles: z.roles.reject(&:empty?)
+      #     }
+      #   }
+      # }.flatten(3).compact.uniq
+      # return links
+      return assembler(args)[:links]
     end
     
     def nodes(args)
-      n = assembler(args).uniq
+      # nodes = assembler(args)
       # nodes = []
       # n.filter{|x|x[:media_type]=="person"}.each { |pe|
       #   nodes << pe
@@ -123,7 +118,8 @@ module Types
       #   nodes << m.people.first(args[:count])
       # }
       # return nodes.flatten(3).compact.uniq
-      return n
+      # return nodes
+      return assembler(args)[:nodes]
     end
 
     private
@@ -133,46 +129,25 @@ module Types
       movie_ids = args[:movie_ids]
       count = args[:count]
 
-      people = []
-      movies = []
+      links = []
+      nodes = []
 
-      movie_ids.map do |mids|
-        TmdbService.movie_credits(mids)
+      movie_creds = movie_ids.each do |mids|
+        x = TmdbService.movie_credits(mids)
+        nodes << x[:nodes]
+        links << x[:links]
       end
 
-      # person_ids.map do |person_id|
-      #   if Person.exists?(person_id)
-      #     people << Person.find(person_id)
-      #   else
-      #     TmdbService.person_credits(person_id)
-      #     people << TmdbService.person_details(person_id)
-      #   end
-      # end.flatten(2)
 
-      # movie_ids.map do |movie_id|
-      #   if Movie.exists?(movie_id)
-      #     movies << Movie.find(movie_id)
-      #   else
-      #     TmdbService.movie_credits(movie_id)
-      #     movies << TmdbService.movie_details(movie_id)
-      #   end
-      # end.flatten(2)
+      # person_creds = person_ids.map do |pids|
+      #   TmdbService.person_credits(pids).first(count)
+      # end
 
-      a = []
 
-      a << people
-      people.each do |person|
-        # a << person.movies.order(vote_count: :desc).first(count)
-
-      end
-
-      a << movies
-      movies.map do |movie|
-        # a << movie.people.first(count)
-
-      end
-
-      a.flatten(3)
+      {
+        nodes: nodes.flatten,
+        links: links.flatten
+      }
     end
   end
 end

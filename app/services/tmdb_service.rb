@@ -71,24 +71,22 @@ class TmdbService
 			}.reject{|y|y.empty?}
 
 			person = group.first.slice(
-				:id,
 				:name,
 				:popularity,
-				:profile_path,
 				:order
 			)
 
 			person.merge!(
 				media_type: "person",
 				roles: r,
-				departments: d
+				departments: d,
+				id: "person-#{group.first[:id]}",
+				poster: group.first[:profile_path]
 			)
-			
+
 			person
 		end
 	end
-
-
 
 	def self.movie_credits(id)
 		url = root + "/movie/" + id.to_s + "/credits" + "?" + key
@@ -101,32 +99,39 @@ class TmdbService
 			response = Faraday.get url
 			body = JSON.parse(response.body).deep_symbolize_keys
 
-			[ body[:cast],
+			movie = self.movie_details(id)
+
+			movie_anchor = {
+				id: movie[:id],
+				name: movie[:title] || movie[:name],
+				popularity: movie[:popularity],
+				order: nil,
+				media_type: movie[:media_type],
+				roles: [],
+				departments: [],
+				full_id: "#{movie[:media_type]}-#{movie[:id]}",
+				poster: movie[:poster_path]
+			}
+
+			creds = [ 
+				body[:cast],
 				body[:crew]
 		  ].flatten.group_by{|x|x[:id]}.to_a.map do |pe|
 				GeneratePersonFromMovieCredits.new(pe).node
 			end
+
+			[ movie_anchor, creds ]
 		end
 
-		credits = CreditManager.new(results)
-		binding.pry
-		# if Link.where(person_id: pe[0]).where(movie_id: id).empty?
-		# 	Link.create!({
-		# 		person_id: pe[0],
-		# 		movie_id: id,
-		# 		roles: c,
-		# 		department: d,
-		# 		order: person[:order] || nil
-		# 	})
-		# end
+		credits = CreditManager.new(*results).data
 
 		if api_hit
 			puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
 		else
 			puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
 		end
-
-		return credits	
+# hash w/ nodes and links
+		return credits
 	end
 
 

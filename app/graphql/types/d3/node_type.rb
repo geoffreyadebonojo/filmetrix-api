@@ -7,17 +7,17 @@ module Types
     field :poster, String
 
     def id
-      [object.media_type, object.id].join("-")
+      object[:id]
     end
 
     def name
-      object.name
+      object[:name]
     end
 
     # add placeholder poster here? 
 
     def poster
-      poster = object.poster
+      poster = object[:poster]
       poster.nil? ? "" : root+poster
     end
 
