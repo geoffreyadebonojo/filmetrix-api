@@ -73,9 +73,9 @@ class TmdbService
 		existing = CreditList.find_by(id: id)
 
 		if existing.present?
-			credits = existing
+			credits_list = existing
 		else
-			credits = CreditList.create!({
+			credits_list = CreditList.create!({
 				id: id,
 				body: body
 			})
@@ -83,13 +83,7 @@ class TmdbService
 
 		# this process needs to move
 		movie_anchor = self.details(id).movie_anchor_data
-
-		body = credits.data #combined_credits method
-		
-		creds = [
-			body[:cast], 
-			body[:crew]
-		].flatten.group_by{|x|x[:id]}.to_a.map do |pe|
+		creds = credits_list.combined_credits.group_by{|x|x[:id]}.to_a.map do |pe|
 			GeneratePersonFromMovieCredits.new(pe).node
 		end
 
@@ -106,22 +100,16 @@ class TmdbService
 		existing = CreditList.find_by(id: id)
 
 		if existing.present?
-			credits = existing
+			credits_list = existing
 		else
-			credits = CreditList.create!({
+			credits_list = CreditList.create!({
 				id: id,
 				body: body
 			})
 		end
 
 		person_anchor = self.details(id).person_anchor_data
-
-		body = credits.data
-
-		creds = [ 
-			body[:cast],
-			body[:crew]
-		].flatten.group_by{|x|x[:id]}.to_a.map do |mov|
+		creds = credits_list.combined_credits.group_by{|x|x[:id]}.to_a.map do |mov|
 			GenerateMovieFromPersonCredits.new(mov).node
 		end
 
