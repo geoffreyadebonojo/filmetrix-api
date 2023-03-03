@@ -26,7 +26,7 @@ class TmdbService
 		else
 
 			existing = Detail.find_by(id: id)
-			return existing.data if existing.present?
+			return existing if existing.present?
 
 			url = root + "/#{entity}" + "/#{id_number.to_s}" + "?" + key
 			response = Faraday.get url
@@ -38,7 +38,7 @@ class TmdbService
 				body: body
 			})
 
-			return details.data
+			return details
 		end
 	end
 
@@ -55,7 +55,7 @@ class TmdbService
 
 			elsif entity == "movie"
 				return self.movie_credits(id)
-				
+
 			elsif entity == "tv"
 			else
 				raise "something went wrong?"
@@ -82,24 +82,14 @@ class TmdbService
 		end
 
 		# this process needs to move
-		movie = self.details(id)
-														#anchor_data method?
-		movie_anchor = {
-			id: movie[:id],
-			name: movie[:title] || movie[:name],
-			popularity: movie[:popularity],
-			order: nil,
-			media_type: movie[:media_type],
-			roles: [],
-			departments: [],
-			full_id: "#{movie[:media_type]}-#{movie[:id]}",
-			poster: movie[:poster_path]
-		}
+		movie_anchor = self.details(id).movie_anchor_data
 
 		body = credits.data #combined_credits method
-		resp = [body[:cast], body[:crew]].flatten.group_by{|x|x[:id]}.to_a
 		
-		creds = resp.map do |pe|
+		creds = [
+			body[:cast], 
+			body[:crew]
+		].flatten.group_by{|x|x[:id]}.to_a.map do |pe|
 			GeneratePersonFromMovieCredits.new(pe).node
 		end
 
@@ -107,49 +97,35 @@ class TmdbService
 	end
 
 	def self.person_credits(id)
-		url = root + "/person/" + id.to_s + "/credits" + "?" + key
+		entity, id_number = id.split("-")
+		url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
 
-		tag = "person-movie-#{id}"
-		api_hit = false
+		response = Faraday.get url
+		body = JSON.parse(response.body)
+		
+		existing = CreditList.find_by(id: id)
 
-		results = Rails.cache.fetch(tag) do
-			api_hit = true
-			response = Faraday.get url
-			body = JSON.parse(response.body).deep_symbolize_keys
-
-			person = self.person_details(id)
-
-			person_anchor = {
-				id: person[:id],
-				name: person[:name],
-				popularity: person[:popularity],
-				order: nil,
-				media_type: 'person',
-				roles: [],
-				departments: [],
-				full_id: "person-#{person[:id]}",
-				poster: person[:profile_path]
-			}
-
-			creds = [ 
-				body[:cast],
-				body[:crew]
-		  ].flatten.group_by{|x|x[:id]}.to_a.map do |mov|
-				GenerateMovieFromPersonCredits.new(mov).node
-			end
-
-			[ person_anchor, creds ]
-		end
-
-		credits = CreditManager.new(*results).data
-
-		if api_hit
-			puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
+		if existing.present?
+			credits = existing
 		else
-			puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
+			credits = CreditList.create!({
+				id: id,
+				body: body
+			})
 		end
 
-		return credits
+		person_anchor = self.details(id).person_anchor_data
+
+		body = credits.data
+
+		creds = [ 
+			body[:cast],
+			body[:crew]
+		].flatten.group_by{|x|x[:id]}.to_a.map do |mov|
+			GenerateMovieFromPersonCredits.new(mov).node
+		end
+
+		return CreditManager.new(person_anchor, creds).data
 	end
 
 	private

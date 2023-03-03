@@ -21,7 +21,7 @@ module Types
     end
 
     def details(args)
-      TmdbService.details(args[:id])
+      TmdbService.details(args[:id]).data
     end
     
     def search(args)
@@ -70,34 +70,22 @@ module Types
     private
 
     def assembler(args)
-      ids = args[:ids]
+      # ids = args[:ids]
       count = args[:count]
+      # until I can figure out how to fix FE
+      ids = args[:ids].first.split(",")
 
       links = []
       nodes = []
+      
 
       ids.each do |id|
         x = TmdbService.credits(id)
         nodes << x[:nodes].first(count+1)
         links << x[:links].first(count)
       end
-
-
-      binding.pry
-
-      # movie_creds = movie_ids.each do |mids|
-      #   x = TmdbService.movie_credits(mids)
-      #   nodes << x[:nodes].first(count+1)
-      #   links << x[:links].first(count)
-      # end
-
-      # person_creds = person_ids.each do |pids|
-      #   x = TmdbService.person_credits(pids)
-      #   nodes << x[:nodes].first(count+1)
-      #   links << x[:links].first(count)
-      # end
       
-      # might not be the best way to manade the +1 links to nodes issue
+      # might not be the best way to manage the +1 links to nodes issue
 
       {
         nodes: nodes.flatten.uniq,
