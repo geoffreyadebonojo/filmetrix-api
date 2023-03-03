@@ -4,12 +4,12 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  nodes(personIds: [500], movieIds: [137113], count: 5) {
+  nodes(ids: ["person-500", "movie-137113"], count: 5) {
     id
     name
     poster
   }
-  links(personIds: [500], movieIds: [137113], count: 5) {
+  links(ids: ["person-500", "movie-137113"], count: 5) {
     source
     target
     roles

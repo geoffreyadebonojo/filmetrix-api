@@ -25,7 +25,6 @@ class TmdbService
 			raise "can't search for id_number='#{id_number}: must be integer'" 
 		else
 
-
 			existing = Detail.find_by(id: id)
 			return existing.data if existing.present?
 
@@ -43,96 +42,68 @@ class TmdbService
 		end
 	end
 
-	# def self.person_details(id)
-	# 	url = root + "/person/" + id + "?" + key
-		
-	# 	# tag = "details-person-#{id}"
-	# 	# api_hit = false
-
-	# 	# details = Rails.cache.fetch(tag) do
-	# 	# api_hit = true
-	# 	response = Faraday.get url
-	# 	body = JSON.parse(response.body).deep_symbolize_keys
-	# 	body[:media_type] = "person"
-	# 	return body
-	# 	# end
-
-	# 	# if api_hit
-	# 	# 	puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
-	# 	# else
-	# 	# 	puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
-	# 	# end
-
-	# 	return details
-	# end
-
-	# def self.movie_details(id)
-	# 	url = root + "/movie/" + id.to_s + "?" + key
-
-	# 	tag = "details-movie-#{id}"
-	# 	api_hit = false
-
-	# 	details = Rails.cache.fetch(tag) do
-	# 		api_hit = true
-	# 		response = Faraday.get url
-	# 		body = JSON.parse(response.body).deep_symbolize_keys
-	# 		body[:media_type] = "movie"
-	# 		return body
-	# 	end
-
-	# 	if api_hit
-	# 		puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
-	# 	else
-	# 		puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
-	# 	end
-
-	# 	return details	
-	# end
-
-	def self.movie_credits(id)
-		url = root + "/movie/" + id.to_s + "/credits" + "?" + key
-
-		tag = "credits-movie-#{id}"
-		api_hit = false
-
-		results = Rails.cache.fetch(tag) do
-			api_hit = true
-			response = Faraday.get url
-			body = JSON.parse(response.body).deep_symbolize_keys
-
-			movie = self.movie_details(id)
-
-			movie_anchor = {
-				id: movie[:id],
-				name: movie[:title] || movie[:name],
-				popularity: movie[:popularity],
-				order: nil,
-				media_type: movie[:media_type],
-				roles: [],
-				departments: [],
-				full_id: "#{movie[:media_type]}-#{movie[:id]}",
-				poster: movie[:poster_path]
-			}
-
-			creds = [ 
-				body[:cast],
-				body[:crew]
-		  ].flatten.group_by{|x|x[:id]}.to_a.map do |pe|
-				GeneratePersonFromMovieCredits.new(pe).node
-			end
-
-			[ movie_anchor, creds ]
-		end
-
-		credits = CreditManager.new(*results).data
-
-		if api_hit
-			puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
+	def self.credits(id)
+		entity, id_number = id.split("-")
+		if %w(person movie tv).exclude?(entity) 
+			raise "#{entity} not an accepted entity type"
 		else
-			puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
+
+			# use CreditList.where to just scoop them all at once?
+
+			if entity == "person"
+				return self.person_credits(id)
+
+			elsif entity == "movie"
+				return self.movie_credits(id)
+				
+			elsif entity == "tv"
+			else
+				raise "something went wrong?"
+			end
+		end
+	end
+	
+	def self.movie_credits(id)
+		entity, id_number = id.split("-")
+		url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
+
+		response = Faraday.get url
+		body = JSON.parse(response.body)
+		
+		existing = CreditList.find_by(id: id)
+
+		if existing.present?
+			credits = existing
+		else
+			credits = CreditList.create!({
+				id: id,
+				body: body
+			})
 		end
 
-		return credits
+		# this process needs to move
+		movie = self.details(id)
+														#anchor_data method?
+		movie_anchor = {
+			id: movie[:id],
+			name: movie[:title] || movie[:name],
+			popularity: movie[:popularity],
+			order: nil,
+			media_type: movie[:media_type],
+			roles: [],
+			departments: [],
+			full_id: "#{movie[:media_type]}-#{movie[:id]}",
+			poster: movie[:poster_path]
+		}
+
+		body = credits.data #combined_credits method
+		resp = [body[:cast], body[:crew]].flatten.group_by{|x|x[:id]}.to_a
+		
+		creds = resp.map do |pe|
+			GeneratePersonFromMovieCredits.new(pe).node
+		end
+
+		return CreditManager.new(movie_anchor, creds).data
 	end
 
 	def self.person_credits(id)
