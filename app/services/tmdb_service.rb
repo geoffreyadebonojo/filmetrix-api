@@ -1,10 +1,19 @@
 class TmdbService		
 	def self.search(term)
 		url = root + "/search/multi?" + key + query(term)
+
+		existing = Search.where('term LIKE ?', "%#{term.upcase.gsub(" ", "%")}%")
+
+		return existing.first.data if existing.present?
+
 		response = Faraday.get url
-		body = JSON.parse(response.body).deep_symbolize_keys
-	
-		return body[:results]
+
+		search = Search.create!({
+			term: term,
+			body: JSON.parse(response.body)
+		})
+
+		return search.data
 	end
 
 	def self.person_details(id)

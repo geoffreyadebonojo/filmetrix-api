@@ -36,7 +36,7 @@ module Types
     
     def search(args)
 
-      results = TmdbService.search(args[:term])
+      results = TmdbService.search(args[:term])[:results]
       # end
 
       # if api_hit
