@@ -19,23 +19,14 @@ module Types
     end
 
     field :details, Types::D3::DetailType, null: true do
-      argument :id, ID
-      argument :entity, String
+      argument :id, String
     end
 
     def details(args)
-      id = args[:id]
-      entity = args[:entity]
-
-      if entity == 'person'
-        TmdbService.person_details(id)
-      else
-        TmdbService.movie_details(id)
-      end
+      details = TmdbService.details(args[:id])
     end
     
     def search(args)
-
       results = TmdbService.search(args[:term])[:results]
       # end
 

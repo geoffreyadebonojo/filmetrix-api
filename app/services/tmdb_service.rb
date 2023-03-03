@@ -16,52 +16,78 @@ class TmdbService
 		return search.data
 	end
 
-	def self.person_details(id)
-		url = root + "/person/" + id + "?" + key
+	def self.details(id)
+		entity, id_number = id.split("-")
+
+		if %w(person movie tv).exclude?(entity)
+			raise "can't search for entity='#{entity}'" 
+		elsif id_number.to_s === 0
+			raise "can't search for id_number='#{id_number}: must be integer'" 
+		else
+
+
+			existing = Detail.find_by(id: id)
+			return existing.data if existing.present?
+
+			url = root + "/#{entity}" + "/#{id_number.to_s}" + "?" + key
+			response = Faraday.get url
+			body = JSON.parse(response.body)
+			body["media_type"] = entity
+
+			details = Detail.create!({
+				id: id,
+				body: body
+			})
+
+			return details.data
+		end
+	end
+
+	# def self.person_details(id)
+	# 	url = root + "/person/" + id + "?" + key
 		
-		tag = "details-person-#{id}"
-		api_hit = false
+	# 	# tag = "details-person-#{id}"
+	# 	# api_hit = false
 
-		details = Rails.cache.fetch(tag) do
-			api_hit = true
-			response = Faraday.get url
-			body = JSON.parse(response.body).deep_symbolize_keys
-			body[:media_type] = "person"
-			return body
-		end
+	# 	# details = Rails.cache.fetch(tag) do
+	# 	# api_hit = true
+	# 	response = Faraday.get url
+	# 	body = JSON.parse(response.body).deep_symbolize_keys
+	# 	body[:media_type] = "person"
+	# 	return body
+	# 	# end
 
-		if api_hit
-			puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
-		else
-			puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
-		end
+	# 	# if api_hit
+	# 	# 	puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
+	# 	# else
+	# 	# 	puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
+	# 	# end
 
-		return details
-	end
+	# 	return details
+	# end
 
+	# def self.movie_details(id)
+	# 	url = root + "/movie/" + id.to_s + "?" + key
 
-	def self.movie_details(id)
-		url = root + "/movie/" + id.to_s + "?" + key
+	# 	tag = "details-movie-#{id}"
+	# 	api_hit = false
 
-		tag = "details-movie-#{id}"
-		api_hit = false
+	# 	details = Rails.cache.fetch(tag) do
+	# 		api_hit = true
+	# 		response = Faraday.get url
+	# 		body = JSON.parse(response.body).deep_symbolize_keys
+	# 		body[:media_type] = "movie"
+	# 		return body
+	# 	end
 
-		details = Rails.cache.fetch(tag) do
-			api_hit = true
-			response = Faraday.get url
-			body = JSON.parse(response.body).deep_symbolize_keys
-			body[:media_type] = "movie"
-			return body
-		end
+	# 	if api_hit
+	# 		puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
+	# 	else
+	# 		puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
+	# 	end
 
-		if api_hit
-			puts ">>>>>>>>>> API HIT on #{tag} <<<<<<<<<"
-		else
-			puts ">>>>>>>>>> FETCHED on #{tag} <<<<<<<<<"
-		end
-
-		return details	
-	end
+	# 	return details	
+	# end
 
 	def self.movie_credits(id)
 		url = root + "/movie/" + id.to_s + "/credits" + "?" + key
