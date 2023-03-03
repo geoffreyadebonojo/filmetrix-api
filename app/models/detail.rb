@@ -1,8 +1,13 @@
 class Detail < ApplicationRecord
+  def anchor_data
+    return movie_anchor_data if  self.data[:media_type] == "movie"
+    return person_anchor_data if self.data[:media_type] == "person"
+  end
+  
+  private
 
   def movie_anchor_data
     movie = self.data
-
     {
 			id: movie[:id],
 			name: movie[:title],
@@ -18,7 +23,6 @@ class Detail < ApplicationRecord
 
   def person_anchor_data
     person = self.data
-    
     {
       id: person[:id],
       name: person[:name],

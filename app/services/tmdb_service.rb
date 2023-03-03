@@ -47,7 +47,6 @@ class TmdbService
 		if %w(person movie tv).exclude?(entity) 
 			raise "#{entity} not an accepted entity type"
 		else
-
 			# use CreditList.where to just scoop them all at once?
 			url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
 
@@ -55,144 +54,23 @@ class TmdbService
 			body = JSON.parse(response.body)
 			
 			existing = CreditList.find_by(id: id)
-	
-			if existing.present?
-				credits_list = existing
-			else
-				credits_list = CreditList.create!({
-					id: id,
-					body: body
-				})
-			end
+			credits_list =  if existing.present?
+												existing
+											else
+												CreditList.create!({
+													id: id,
+													body: body
+												})
+											end
 
-			if entity == "person"
-				anchor = self.details(id).person_anchor_data
-
-			elsif entity == "movie"
-				anchor = self.details(id).movie_anchor_data
-
-			elsif entity == "tv"
-			else
-				raise "something went wrong?"
-			end
-
-			creds = credits_list.grouped_credits
-
-			return CreditManager.new(anchor, creds).data
+			return CreditManager.new(
+				self.details(id).anchor_data, 
+				credits_list.grouped_credits
+			).data
 		end
 	end
 	
-	# def self.movie_credits(id)
-	# 	entity, id_number = id.split("-")
-	# 	url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
-
-	# 	response = Faraday.get url
-	# 	body = JSON.parse(response.body)
-		
-	# 	existing = CreditList.find_by(id: id)
-
-	# 	if existing.present?
-	# 		credits_list = existing
-	# 	else
-	# 		credits_list = CreditList.create!({
-	# 			id: id,
-	# 			body: body
-	# 		})
-	# 	end
-
-	# 	# this process needs to move
-	# 	movie_anchor = self.details(id).movie_anchor_data
-	# 	creds = credits_list.combined_credits.group_by{|x|x[:id]}.to_a.map do |pe|
-	# 		GeneratePersonFromMovieCredits.new(pe).node
-	# 	end
-
-	# 	return CreditManager.new(movie_anchor, creds).data
-	# end
-
-	# def self.person_credits(id)
-	# 	entity, id_number = id.split("-")
-	# 	url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
-
-	# 	response = Faraday.get url
-	# 	body = JSON.parse(response.body)
-		
-	# 	existing = CreditList.find_by(id: id)
-
-	# 	if existing.present?
-	# 		credits_list = existing
-	# 	else
-	# 		credits_list = CreditList.create!({
-	# 			id: id,
-	# 			body: body
-	# 		})
-	# 	end
-
-	# 	person_anchor = self.details(id).person_anchor_data
-
-	# 	creds = credits_list.grouped_credits
-
-	# 	return CreditManager.new(person_anchor, creds).data
-	# end
-
 	private
-
-	# GenerateMovieFromPersonCredits = Struct.new(:entry) do
-	# 	def node
-	# 		group = entry[1]
-
-	# 		r = group.map{ |x|
-	# 			roles = x[:job] || x[:character]
-	# 		}.reject{|y|y.empty?}
-
-	# 		d = group.map{ |x|
-	# 			departments = x[:department] || "Acting"
-	# 		}.reject{|y|y.empty?}
-
-	# 		movie = group.first
-
-	# 		movie.merge!(
-	# 			name: movie[:title] || movie[:name],
-	# 			media_type: "movie",
-	# 			roles: r,
-	# 			departments: d,
-	# 			id: "movie-#{movie[:id]}",
-	# 			poster: movie[:poster_path]
-	# 		)
-
-	# 		movie
-	# 	end
-	# end
-
-
-	# GeneratePersonFromMovieCredits = Struct.new(:entry) do
-	# 	def node
-	# 		group = entry[1]
-
-	# 		r = group.map{ |x|
-	# 			roles = x[:job] || x[:character]
-	# 		}.reject{|y|y.empty?}
-
-	# 		d = group.map{ |x|
-	# 			departments = x[:department] || "Acting"
-	# 		}.reject{|y|y.empty?}
-
-	# 		person = group.first.slice(
-	# 			:name,
-	# 			:popularity,
-	# 			:order
-	# 		)
-
-	# 		person.merge!(
-	# 			media_type: "person",
-	# 			roles: r,
-	# 			departments: d,
-	# 			id: "person-#{group.first[:id]}",
-	# 			poster: group.first[:profile_path]
-	# 		)
-
-	# 		person
-	# 	end
-	# end
 	
 	def self.query(term)
 		cleaned = term.downcase
