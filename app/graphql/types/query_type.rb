@@ -60,30 +60,36 @@ module Types
     end
 
     def links(args)
-      return assembler(args)[:links]
+      @data ||= assembler(args)
+      return @data[:links]
     end
     
     def nodes(args)
-      return assembler(args)[:nodes]
+      @data ||= assembler(args)
+      return @data[:nodes]
     end
 
     private
 
     def assembler(args)
+
       # ids = args[:ids]
       count = args[:count]
       # until I can figure out how to fix FE
       ids = args[:ids].first.split(",")
 
       links = []
-      nodes = []
       
-      ids.each do |id|
-        x = TmdbService.credits(id)
-        nodes << x[:nodes].first(count+1)
-        links << x[:links].first(count)
+      nodes = ids.map do |id|
+        TmdbService.credits(id)[:nodes]
       end
       
+      match_maker = MatchMaker.new(nodes)
+
+      binding.pry
+      
+
+      # binding.pry
       # might not be the best way to manage the +1 links to nodes issue
 
       {

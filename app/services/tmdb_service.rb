@@ -66,7 +66,8 @@ class TmdbService
 			if entity == "movie"
 				results = CreditManager.new(
 					self.details(id).anchor_data, 
-					credits_list.top_results
+					# credits_list.top_results
+					credits_list.grouped_credits
 				).data
 			else
 				results = CreditManager.new(
