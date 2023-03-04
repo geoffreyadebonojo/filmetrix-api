@@ -63,10 +63,19 @@ class TmdbService
 												})
 											end
 
-			return CreditManager.new(
-				self.details(id).anchor_data, 
-				credits_list.grouped_credits
-			).data
+			if entity == "movie"
+				results = CreditManager.new(
+					self.details(id).anchor_data, 
+					credits_list.top_results
+				).data
+			else
+				results = CreditManager.new(
+					self.details(id).anchor_data, 
+					credits_list.grouped_credits
+				).data
+			end
+
+			return results
 		end
 	end
 	

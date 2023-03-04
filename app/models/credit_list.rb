@@ -1,7 +1,8 @@
 class CreditList < ApplicationRecord
 
 	# should be the default?
-  def grouped_credits
+
+	def constructor
     if self.id.include?("person")
       constructor = GenerateMovieFromPersonCredits
     elsif self.id.include?("movie")
@@ -11,6 +12,9 @@ class CreditList < ApplicationRecord
     else
       raise "the id is fucked up?"
     end
+	end
+
+  def grouped_credits
     self.combined_credits.group_by{|x|x[:id]}.to_a.map do |ent|
       constructor.new(ent).node
     end
@@ -28,26 +32,66 @@ class CreditList < ApplicationRecord
 		self.data[:crew]
 	end
 
-	def existing_departments
-		grouped_credits.map{|x|x[:departments]}.flatten.uniq
-	end
-
-	def by_department
+	def crew_by_department
 		crew.group_by{|x|x[:department]}
 	end
 
+	def jobs_within_department(dept)
+		crew_by_department[dept].group_by{|x|x[:job]}
+	end
+
+	def directors
+		group = jobs_within_department("Directing")
+
+		return [
+			group["Director"], 
+			group["Executive Director"]
+		].flatten.compact.uniq
+	end
+
+	def producers
+		group = jobs_within_department("Production")
+		
+		return [
+			group["Producer"], 
+			group["Executive Producer"]
+		].flatten.compact.uniq
+	end
+
+	def top_results
+		list = [
+			cast_by_order.first(5),
+			directors.first(3),
+			producers.first(2)
+		].flatten(3)
+
+		list.group_by{|x|x[:id]}.to_a.map do |ent|
+			constructor.new(ent).node
+		end
+	end
+
 	# might include some unexpected results
-	def sort_by_popularity(min=nil, max=nil)
-		pops = grouped_credits.map{|x|x[:popularity]}
+	def cast_by_popularity(min=nil, max=nil)
+		pops = cast.map{|x|x[:popularity]}
 		min = min || pops.min
 		max = max || pops.max
 
-		grouped_credits.filter do |x|
+		cast.filter do |x|
 			min <= x[:popularity] && x[:popularity] <= max
 		end.sort_by { |k| k[:popularity] }.reverse
 	end
 
-	def sort_by_order
+	def crew_by_popularity(min=nil, max=nil)
+		pops = crew.map{|x|x[:popularity]}
+		min = min || pops.min
+		max = max || pops.max
+
+		crew.filter do |x|
+			min <= x[:popularity] && x[:popularity] <= max
+		end.sort_by { |k| k[:popularity] }.reverse
+	end
+
+	def cast_by_order
 		cast.sort_by { |k| k[:order] }
 	end
 

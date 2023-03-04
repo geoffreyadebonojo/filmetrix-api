@@ -78,7 +78,6 @@ module Types
       links = []
       nodes = []
       
-
       ids.each do |id|
         x = TmdbService.credits(id)
         nodes << x[:nodes].first(count+1)
