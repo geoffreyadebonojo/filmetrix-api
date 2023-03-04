@@ -9,12 +9,19 @@ class CreditManager
   def data
     nodes = []
 
-    nodes << {
+    set = pluck(:id, :name, :poster, :popularity, :genre_ids)
+
+    set.pop
+    
+    nodes << set.reject{
+      |x| x[:genre_ids].include?(10402) || x[:genre_ids].include?(99)
+    }.sort_by { |x| x[:popularity] }.reverse
+    
+    nodes.unshift({
       id: anchor[:full_id],
       name: anchor[:name],
       poster: anchor[:poster]
-    }
-    nodes << pluck(:id, :name, :poster)
+    })
 
     {
       nodes: nodes.flatten,
@@ -91,3 +98,26 @@ class CreditManager
     all.filter{|x|x[:departments].map{|x|x.downcase}.include?(dept)}
   end
 end
+
+
+# GENRES = {
+#   "28": "action",
+#   "12": "adventure",
+#   "16": "animation",
+#   "35": "comedy",
+#   "80": "crime",
+#   "99": "documentary",
+#   "18": "drama",
+#   "10751": "family",
+#   "14": "fantasy",
+#   "36": "history"
+#   "27": "horror",
+#   "10402": "music"
+#   "9648": "mystery",
+#   "10749": "romance",
+#   "878": "scifi",
+#   "10770": "tvmovie",
+#   "53": "thriller",
+#   "10752": "war",
+#   "37": "western"
+# }

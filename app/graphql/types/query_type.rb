@@ -84,8 +84,8 @@ module Types
         TmdbService.credits(id)[:nodes]
       end
       
-      match_maker = MatchMaker.new(nodes)
-
+      match_maker = MatchMaker.new(nodes).matches
+      
       binding.pry
       
 
