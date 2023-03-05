@@ -1,0 +1,19 @@
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL
+
+query {
+  graphData(ids: ["person-500,person-287,person-192,movie-137113"], count:5){
+    nodes {
+      id
+      name
+      poster
+    }
+    links {
+      source
+      target
+      roles
+    }
+  }
+} 

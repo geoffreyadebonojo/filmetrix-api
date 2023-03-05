@@ -24,15 +24,23 @@ module Types
       argument :id, String
     end
 
+    field :graphData, Types::D3::GraphDataType, null: true do
+      argument :ids, [String]
+      argument :count, Integer
+    end
+
     def querySingle(args)
       id = args[:id]
-
       Rails.cache.fetch("query-single-#{id}") do
         {
           anchor: details(args),
           credits: credits(args)
         }
       end
+    end
+
+    def graphData(args)
+      assembler(args)
     end
 
     def details(args)
@@ -100,12 +108,10 @@ module Types
       links = []
       
       all = ids.map do |id|
-        Rails.cache.fetch("query-single-#{id}") do 
-          {
-            anchor: TmdbService.details(id),
-            credits: TmdbService.credits(id).grouped_credits
-          }
-        end
+        {
+          anchor: TmdbService.details(id),
+          credits: TmdbService.credits(id).grouped_credits
+        }
       end
 
       c = all.map{|e|e[:credits]}.flatten
