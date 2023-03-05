@@ -1,0 +1,23 @@
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL
+
+query {
+  querySingle(id:"person-500") {
+    anchor {
+      id
+      summary
+      year
+      imdbId
+      name
+      popularity
+      poster
+    }
+    credits {
+      id
+      name
+      poster
+    }
+  }    
+}

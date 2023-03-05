@@ -19,11 +19,30 @@ module Types
     field :details, Types::D3::DetailType, null: true do
       argument :id, String
     end
+    
+    field :querySingle, Types::D3::QuerySingleType, null: true do
+      argument :id, String
+    end
+
+    def querySingle(args)
+      id = args[:id]
+
+      Rails.cache.fetch("query-single-#{id}") do
+        {
+          anchor: details(args),
+          credits: credits(args)
+        }
+      end
+    end
 
     def details(args)
       TmdbService.details(args[:id]).data
     end
-    
+
+    def credits(args)
+      TmdbService.credits(args[:id]).grouped_credits
+    end
+
     def search(args)
       results = TmdbService.search(args[:term])[:results]
       nodes = []
@@ -59,7 +78,7 @@ module Types
       return nodes
     end
 
-    def links(args)
+    def links(args)    
       @data ||= assembler(args)
       return @data[:links]
     end
@@ -81,10 +100,12 @@ module Types
       links = []
       
       all = ids.map do |id|
-        {
-          anchor: TmdbService.details(id),
-          credits: TmdbService.credits(id).grouped_credits
-        }
+        Rails.cache.fetch("query-single-#{id}") do 
+          {
+            anchor: TmdbService.details(id),
+            credits: TmdbService.credits(id).grouped_credits
+          }
+        end
       end
 
       c = all.map{|e|e[:credits]}.flatten
