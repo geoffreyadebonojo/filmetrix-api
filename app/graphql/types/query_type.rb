@@ -103,22 +103,30 @@ module Types
         
         inner_list = []
 
-        inner_list << { 
+        anchor_node = { 
           id: anchor_id, 
-          name: anchor[:name], 
-          poster: anchor[:media_type] == "person" ? anchor[:profile_path] : anchor[:poster_path]
+          name: anchor[:name] || anchor[:title], 
+          poster: anchor[:profile_path] || anchor[:poster_path]
         }
+
+        inner_list << anchor_node
 
         matches = []
         other = []
 
-        z[:credits].each.map do |y|
-          if y[:genre_ids].exclude?(10402) && y[:genre_ids].exclude?(99) && y[:genre_ids].present?
-            if c.include?(y[:id])
-              matches << y
-            else
-              other << y
+        if anchor[:media_type] == "person"
+          z[:credits].each.map do |y|
+            if y[:genre_ids].exclude?(10402) && y[:genre_ids].exclude?(99) && y[:genre_ids].present?
+              if c.include?(y[:id])
+                matches << y
+              else
+                other << y
+              end
             end
+          end
+        else
+          z[:credits].each.map do |y|
+            other << y
           end
         end
 
@@ -126,19 +134,19 @@ module Types
         inner_list += other.first(count)
 
         inner_list[1..-1].each do |w|
-          if anchor[:media_type] == "person"
+          # if anchor[:media_type] == "person"
             links << { 
               source: anchor_id, 
               target: w[:id], 
               roles: w[:roles]
             }
-          else
-            links << { 
-              source: w[:id], 
-              target: anchor_id, 
-              roles: w[:roles]
-            }
-          end
+          # else
+          #   links << { 
+          #     source: w[:id], 
+          #     target: anchor_id, 
+          #     roles: w[:roles]
+          #   }
+          # end
         end
 
         nodes << inner_list.map do |li|
