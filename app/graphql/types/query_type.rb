@@ -21,7 +21,7 @@ module Types
     end
     
     field :querySingle, Types::D3::QuerySingleType, null: true do
-      argument :id, String
+      argument :ids, [String]
     end
 
     field :graphData, Types::D3::GraphDataType, null: true do
@@ -30,11 +30,17 @@ module Types
     end
 
     def querySingle(args)
-      id = args[:id]
-      Rails.cache.fetch("query-single-#{id}") do
+      ids = args[:ids]
+      data = assembler(args)
+      Rails.cache.fetch("query-single-#{ids.first}") do
+        # {
+        #   anchor: details(args),
+        #   credits: credits(args)
+        # }
+
         {
-          anchor: details(args),
-          credits: credits(args)
+          nodes: data[:nodes],
+          links: data[:links]
         }
       end
     end
@@ -101,7 +107,7 @@ module Types
     def assembler(args)
 
       # ids = args[:ids]
-      count = args[:count]
+      # count = args[:count]
       # until I can figure out how to fix FE
       ids = args[:ids].first.split(",")
 
@@ -158,7 +164,7 @@ module Types
         end
 
         inner_list += matches
-        inner_list += other.first(count)
+        inner_list += other
 
         inner_list[1..-1].each do |w|
           # if anchor[:media_type] == "person"

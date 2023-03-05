@@ -2,16 +2,28 @@
 
 module Types
   class D3::QuerySingleType < Types::BaseObject
-    field :id, String
-    field :anchor, Types::D3::DetailType
-    field :credits, [Types::D3::NodeType]
+    field :ids, [String]
+    field :nodes, [Types::D3::NodeType]
+    field :links, [Types::D3::LinkType]
 
-    def anchor
-      object[:anchor]
+    def nodes
+      object[:nodes]
     end
     
-    def credits
-      object[:credits]
+    def links
+      object[:links]
     end
+
+
+    # field :anchor, Types::D3::DetailType
+    # field :credits, [Types::D3::NodeType]
+
+    # def anchor
+    #   object[:anchor]
+    # end
+    
+    # def credits
+    #   object[:credits]
+    # end
   end
 end

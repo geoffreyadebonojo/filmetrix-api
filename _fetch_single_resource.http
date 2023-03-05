@@ -4,20 +4,16 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  querySingle(id:"person-500") {
-    anchor {
+  querySingle(ids:["person-500"]) {
+    nodes {
       id
-      summary
-      year
-      imdbId
       name
-      popularity
       poster
     }
-    credits {
-      id
-      name
-      poster
+    links { 
+      source
+      target
+      roles
     }
   }    
 }
