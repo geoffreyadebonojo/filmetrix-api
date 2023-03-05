@@ -80,22 +80,78 @@ module Types
 
       links = []
       
-      nodes = ids.map do |id|
-        TmdbService.credits(id)[:nodes]
+      all = ids.map do |id|
+        {
+          anchor: TmdbService.details(id),
+          credits: TmdbService.credits(id).grouped_credits
+        }
       end
-      
-      match_maker = MatchMaker.new(nodes).matches
-      
-      binding.pry
-      
 
-      # binding.pry
+      c = all.map{|e|e[:credits]}.flatten
+             .map{|x|x[:id]}
+             .group_by{|i|i}.to_a
+             .filter{|x|x[1].count>1}
+             .map{|d|d[0]}
+
+      overlaps = []
+      nodes = []
+      links = []
+
+      all.each do |z|
+        anchor_id = z[:anchor].id
+        anchor = z[:anchor].data
+        
+        inner_list = []
+
+        inner_list << { 
+          id: anchor_id, 
+          name: anchor[:name], 
+          poster: anchor[:media_type] == "person" ? anchor[:profile_path] : anchor[:poster_path]
+        }
+
+        matches = []
+        other = []
+
+        z[:credits].each.map do |y|
+          if y[:genre_ids].exclude?(10402) && y[:genre_ids].exclude?(99) && y[:genre_ids].present?
+            if c.include?(y[:id])
+              matches << y
+            else
+              other << y
+            end
+          end
+        end
+
+        inner_list += matches
+        inner_list += other.first(count)
+        nodes << inner_list
+
+        inner_list.each do |w|
+          if anchor[:media_type] == "person"
+            links << { 
+              source: anchor_id, 
+              target: w[:id], 
+              roles: w[:roles]
+            }
+          else
+            links << { 
+              source: w[:id], 
+              target: anchor_id, 
+              roles: w[:roles]
+            }
+          end
+        end
+      end
+
+
+      binding.pry
+
       # might not be the best way to manage the +1 links to nodes issue
 
-      {
-        nodes: nodes.flatten.uniq,
-        links: links.flatten.uniq
-      }
+      # {
+      #   nodes: nodes.flatten.uniq,
+      #   links: links.flatten.uniq
+      # }
     end
   end
 end
