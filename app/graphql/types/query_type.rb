@@ -124,9 +124,8 @@ module Types
 
         inner_list += matches
         inner_list += other.first(count)
-        nodes << inner_list
 
-        inner_list.each do |w|
+        inner_list[1..-1].each do |w|
           if anchor[:media_type] == "person"
             links << { 
               source: anchor_id, 
@@ -141,17 +140,20 @@ module Types
             }
           end
         end
+
+        nodes << inner_list.map do |li|
+          {
+            id: li[:id],
+            name: li[:name],
+            poster: li[:poster]
+          }
+        end
       end
 
-
-      binding.pry
-
-      # might not be the best way to manage the +1 links to nodes issue
-
-      # {
-      #   nodes: nodes.flatten.uniq,
-      #   links: links.flatten.uniq
-      # }
+      {
+        nodes: nodes.flatten.uniq,
+        links: links.flatten.uniq
+      }
     end
   end
 end
