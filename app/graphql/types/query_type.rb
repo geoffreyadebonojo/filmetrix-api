@@ -34,10 +34,10 @@ module Types
       data = assembler(args)
       # Rails.cache.fetch("query-single-#{ids.first}") do
 
-        {
-          nodes: data[:nodes],
-          links: data[:links]
-        }
+      return {
+        nodes: data[:nodes],
+        links: data[:links]
+      }
       # end
     end
 
@@ -144,7 +144,7 @@ module Types
         if anchor[:media_type] == "person"
           anchor_node[:type] = [anchor[:known_for_department]]
         else
-          anchor_node[:type] = anchor[:genres].map{|x|x[:id].to_s}
+          anchor_node[:type] = anchor[:genres].map{|x|genre_name(x[:id])}
         end
 
         nodes << anchor_node
@@ -197,7 +197,7 @@ module Types
           if li[:media_type] == "person"
             obj[:type] = li[:departments].map{|x|x.gsub('\u0026', "&")}
           else
-            obj[:type] = li[:genre_ids].map{|x|x.to_s}
+            obj[:type] = li[:genre_ids].map{|x|genre_name(x)}
           end
 
           obj
@@ -208,6 +208,32 @@ module Types
         nodes: nodes.flatten.uniq,
         links: links.flatten.uniq
       }
+    end
+
+    def genre_name(code)
+      vals = {
+        28=> 'action',
+        12=> 'adventure',
+        16=> 'animation',
+        35=> 'comedy',
+        80=> 'crime',
+        99=> 'documentary',
+        18=> 'drama',
+        10751=> 'family',
+        14=> 'fantasy',
+        36=> 'history',
+        27=> 'horror',
+        10402=> 'music',
+        9648=> 'mystery',
+        10749=> 'romance',
+        878=> 'scifi',
+        10770=> 'tvmovie',
+        53=> 'thriller',
+        10752=> 'war',
+        37=> 'western'
+      }
+
+      vals[code]
     end
   end
 end
