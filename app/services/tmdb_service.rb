@@ -7,10 +7,13 @@ class TmdbService
 		return existing.first.data if existing.present?
 
 		response = Faraday.get url
+		body = JSON.parse(response.body)
+
+		return [] if body["total_results"] == 0
 
 		search = Search.create!({
 			term: term,
-			body: JSON.parse(response.body)
+			body: body
 		})
 
 		return search.data
@@ -41,7 +44,6 @@ class TmdbService
 			return details
 		end
 	end
-
 
 	def self.credits(id)
 		entity, id_number = id.split("-")

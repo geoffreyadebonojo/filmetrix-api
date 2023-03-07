@@ -4,11 +4,12 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  querySingle(ids:["person-500"]) {
+  querySingle(ids:["movie-74"]) {
     nodes {
       id
       name
       poster
+      type
     }
     links { 
       source

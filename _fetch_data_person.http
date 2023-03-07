@@ -8,6 +8,7 @@ query {
     id
     name
     poster
+    type
   }
   links(ids: ["person-500"], count: 15) {
     source

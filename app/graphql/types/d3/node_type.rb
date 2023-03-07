@@ -5,6 +5,7 @@ module Types
     field :id, String
     field :name, String
     field :poster, String
+    field :type, [String]
 
     def id
       object[:id]
@@ -19,6 +20,10 @@ module Types
     def poster
       poster = object[:poster]
       poster.nil? ? "" : root+poster
+    end
+
+    def type
+      object[:type]
     end
 
     def root

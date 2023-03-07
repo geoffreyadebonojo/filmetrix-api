@@ -24,30 +24,26 @@ module Types
       argument :ids, [String]
     end
 
-    field :graphData, Types::D3::GraphDataType, null: true do
-      argument :ids, [String]
-      argument :count, Integer
-    end
+    # field :graphData, Types::D3::GraphDataType, null: true do
+    #   argument :ids, [String]
+    #   argument :count, Integer
+    # end
 
     def querySingle(args)
       ids = args[:ids]
       data = assembler(args)
-      Rails.cache.fetch("query-single-#{ids.first}") do
-        # {
-        #   anchor: details(args),
-        #   credits: credits(args)
-        # }
+      # Rails.cache.fetch("query-single-#{ids.first}") do
 
         {
           nodes: data[:nodes],
           links: data[:links]
         }
-      end
+      # end
     end
 
-    def graphData(args)
-      assembler(args)
-    end
+    # def graphData(args)
+    #   assembler(args)
+    # end
 
     def details(args)
       TmdbService.details(args[:id]).data
@@ -59,6 +55,9 @@ module Types
 
     def search(args)
       results = TmdbService.search(args[:term])[:results]
+
+      return [] if results.empty?
+
       nodes = []
       
       results.each do |r|
@@ -139,11 +138,16 @@ module Types
         anchor_node = { 
           id: anchor_id, 
           name: anchor[:name] || anchor[:title], 
-          poster: anchor[:profile_path] || anchor[:poster_path]
+          poster: anchor[:profile_path] || anchor[:poster_path],
         }
+        
+        if anchor[:media_type] == "person"
+          anchor_node[:type] = [anchor[:known_for_department]]
+        else
+          anchor_node[:type] = anchor[:genres].map{|x|x[:id].to_s}
+        end
 
-        inner_list << anchor_node
-
+        nodes << anchor_node
         matches = []
         other = []
 
@@ -166,28 +170,37 @@ module Types
         inner_list += matches
         inner_list += other
 
-        inner_list[1..-1].each do |w|
-          # if anchor[:media_type] == "person"
+        inner_list.each do |w|
+          if anchor[:media_type] == "person"
             links << { 
               source: anchor_id, 
               target: w[:id], 
               roles: w[:roles]
             }
-          # else
-          #   links << { 
-          #     source: w[:id], 
-          #     target: anchor_id, 
-          #     roles: w[:roles]
-          #   }
-          # end
+          else
+            links << { 
+              source: w[:id], 
+              target: anchor_id, 
+              roles: w[:roles]
+            }
+          end
         end
 
         nodes << inner_list.map do |li|
-          {
+          obj = {
             id: li[:id],
             name: li[:name],
-            poster: li[:poster]
+            poster: li[:poster],
+            type: li[:type]
           }
+
+          if li[:media_type] == "person"
+            obj[:type] = li[:departments].map{|x|x.gsub('\u0026', "&")}
+          else
+            obj[:type] = li[:genre_ids].map{|x|x.to_s}
+          end
+
+          obj
         end
       end
 
