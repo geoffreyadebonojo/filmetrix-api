@@ -142,7 +142,7 @@ module Types
         }
         
         if anchor[:media_type] == "person"
-          anchor_node[:type] = [anchor[:known_for_department]]
+          anchor_node[:type] = [anchor[:known_for_department].downcase]
         else
           anchor_node[:type] = anchor[:genres].map{|x|genre_name(x[:id])}
         end
@@ -195,7 +195,7 @@ module Types
           }
 
           if li[:media_type] == "person"
-            obj[:type] = li[:departments].map{|x|x.gsub('\u0026', "&")}
+            obj[:type] = li[:departments].map{|x|x.gsub('\u0026', "&").downcase}
           else
             obj[:type] = li[:genre_ids].map{|x|genre_name(x)}
           end
