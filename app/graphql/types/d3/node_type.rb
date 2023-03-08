@@ -6,6 +6,7 @@ module Types
     field :name, String
     field :poster, String
     field :type, [String]
+    field :entity, String
 
     def id
       object[:id]
@@ -24,6 +25,10 @@ module Types
 
     def type
       object[:type]
+    end
+
+    def entity
+      object[:entity]
     end
 
     def root

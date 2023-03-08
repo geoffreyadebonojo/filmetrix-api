@@ -104,7 +104,6 @@ module Types
     private
 
     def assembler(args)
-
       # ids = args[:ids]
       # count = args[:count]
       # until I can figure out how to fix FE
@@ -139,6 +138,7 @@ module Types
           id: anchor_id, 
           name: anchor[:name] || anchor[:title], 
           poster: anchor[:profile_path] || anchor[:poster_path],
+          entity: anchor[:media_type]
         }
         
         if anchor[:media_type] == "person"
@@ -199,6 +199,8 @@ module Types
           else
             obj[:type] = li[:genre_ids].map{|x|genre_name(x)}
           end
+
+          obj[:entity] = li[:media_type]
 
           obj
         end
