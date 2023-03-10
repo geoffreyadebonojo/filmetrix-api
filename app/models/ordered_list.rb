@@ -1,4 +1,4 @@
-class Formatter
+class OrderedList
   attr_reader :credit_lists, :matching_ids
 
   def initialize(credit_lists)

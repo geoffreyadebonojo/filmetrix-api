@@ -28,9 +28,7 @@ RSpec.describe "Assembly line", type: :model do
         movie-40196 movie-37757 movie-807 
         movie-744539)
         
-      credit_lists = CreditList.where(id: actor_ids).map do |x|
-        x.grouped_credits
-      end
+      credit_lists = CreditList.where(id: actor_ids).map(&:grouped_credits)
 
       matcher = Matcher.new(credit_lists).matches
 
@@ -38,15 +36,13 @@ RSpec.describe "Assembly line", type: :model do
     end
   end
   
-  describe "Formatter" do
+  describe "OrderedList" do
     it "formats credit lists" do
       actor_ids = %w(person-500 person-287 person-192)
 
-      credit_lists = CreditList.where(id: actor_ids).map do |x|
-        x.grouped_credits
-      end
+      credit_lists = CreditList.where(id: actor_ids).map(&:grouped_credits)
         
-      formatted = Formatter.new(credit_lists).format
+      formatted = OrderedList.new(credit_lists).format
 
       tc_matches = formatted.first.first(10).map{|m|m[:id]}
       bp_matches = formatted.second.first(10).map{|m|m[:id]}
@@ -68,6 +64,23 @@ RSpec.describe "Assembly line", type: :model do
 
       expect(bp_matches).to include(se7en)
       expect(mf_matches).to include(se7en)
+    end
+  end
+
+  describe "CreditCacheManager" do
+    it "manages" do
+      actor_ids = %w(person-500 person-287 person-192)
+      remove_genres = [99, 10402]
+
+      filtered_lists = CreditCacheManager.new(actor_ids).filter_genres
+
+      tc_genres = filtered_lists.first.map{|x|x[:genre_ids]}.flatten.uniq
+      bp_genres = filtered_lists.second.map{|x|x[:genre_ids]}.flatten.uniq
+      mf_genres = filtered_lists.third.map{|x|x[:genre_ids]}.flatten.uniq
+
+      expect(tc_genres).to_not include(remove_genres)
+      expect(bp_genres).to_not include(remove_genres)
+      expect(mf_genres).to_not include(remove_genres)
     end
   end
 end
