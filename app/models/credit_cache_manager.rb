@@ -14,23 +14,25 @@ class CreditCacheManager
     end
 
     @credits_hash = list_hash
-    
   end
 
-  def return_cache_list_for_actor(actor_id, count)
-    filtered_credits[actor_id].first(count)
+  def ordered_credits(args)
+    limited_set = limit_count(args[:actor_id], args[:count])
+    limited_set.sort_by{|k|k[args[:order_by]]}.reverse
   end
 
-  def filtered_credits
+  def limit_count(actor_id, count)
+    filtered_credits_hash[actor_id].first(count)
+  end
+
+  def filtered_credits_hash
     new_hash = {}
-
     ids.each do |id| 
       filtered = credits_hash[id].reject do |item|
         (item[:genre_ids] & forbidden_genres).present?
       end
       new_hash[id] = filtered
     end
-
     new_hash
   end
 end

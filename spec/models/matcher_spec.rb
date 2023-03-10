@@ -75,7 +75,7 @@ RSpec.describe "Assembly line", type: :model do
     end
     
     it "filters genres" do
-      filtered_credits = @credit_cache_manager.filtered_credits
+      filtered_credits = @credit_cache_manager.filtered_credits_hash
 
       tc_genres = filtered_credits["person-500"].map{|x|x[:genre_ids]}.flatten.uniq
       bp_genres = filtered_credits["person-287"].map{|x|x[:genre_ids]}.flatten.uniq
@@ -87,7 +87,7 @@ RSpec.describe "Assembly line", type: :model do
     end
 
     it "returns limited set" do
-      tc_credits = @credit_cache_manager.return_cache_list_for_actor("person-500", 7)
+      tc_credits = @credit_cache_manager.limit_count("person-500", 7)
 
       top_seven = ["War of the Worlds", "Oblivion", "Interview with the Vampire",
         "Minority Report", "Eyes Wide Shut", "The Last Samurai", "Top Gun"]
@@ -96,7 +96,17 @@ RSpec.describe "Assembly line", type: :model do
     end
 
     it "returns ordered set" do 
-      
+      ordered_credits = @credit_cache_manager.ordered_credits(
+        actor_id: "person-500", 
+        count: 7, 
+        order_by: :popularity
+      )
+
+      top_seven_by_popularity = ["Top Gun", "Oblivion", "War of the Worlds",
+        "Interview with the Vampire", "Eyes Wide Shut", "The Last Samurai",
+        "Minority Report"]
+
+      expect(ordered_credits.map{|x|x[:name]}).to eq(top_seven_by_popularity)
     end
   end
 end
