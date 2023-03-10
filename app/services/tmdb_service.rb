@@ -53,10 +53,10 @@ class TmdbService
 			# use CreditList.where to just scoop them all at once?
 			url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
 
+			existing = CreditList.find_by(id: id)
+			
 			response = Faraday.get url
 			body = JSON.parse(response.body)
-			
-			existing = CreditList.find_by(id: id)
 			
 			credits_list =  if existing.present?
 												existing
@@ -71,46 +71,6 @@ class TmdbService
 		end
 	end
 
-
-	def self.xredits(id)
-		entity, id_number = id.split("-")
-		if %w(person movie tv).exclude?(entity) 
-			raise "#{entity} not an accepted entity type"
-		else
-			# use CreditList.where to just scoop them all at once?
-			url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
-
-			response = Faraday.get url
-			body = JSON.parse(response.body)
-			
-			existing = CreditList.find_by(id: id)
-			credits_list =  if existing.present?
-												existing
-											else
-												CreditList.create!({
-													id: id,
-													body: body
-												})
-											end
-
-			if entity == "movie"
-				results = CreditManager.new(
-					self.details(id).anchor_data, 
-					# credits_list.top_results
-					credits_list.grouped_credits
-				).data
-
-			else
-				results = CreditManager.new(
-					self.details(id).anchor_data, 
-					credits_list.grouped_credits
-				).data
-			end
-
-			return results
-		end
-	end
-	
 	private
 	
 	def self.query(term)

@@ -1,4 +1,9 @@
 class Detail < ApplicationRecord
+  
+	def write
+		File.write("db/seeds/#{id}/details.json", data.to_json)
+	end
+  
   def anchor_data
     return movie_anchor_data if  self.data[:media_type] == "movie"
     return person_anchor_data if self.data[:media_type] == "person"

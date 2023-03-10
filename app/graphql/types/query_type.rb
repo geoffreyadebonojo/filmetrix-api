@@ -38,7 +38,6 @@ module Types
         nodes: data[:nodes],
         links: data[:links]
       }
-      # end
     end
 
     # def graphData(args)
