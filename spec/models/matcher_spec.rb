@@ -29,7 +29,6 @@ RSpec.describe "Assembly line", type: :model do
         movie-744539)
         
       credit_lists = CreditList.where(id: actor_ids).map(&:grouped_credits)
-
       matcher = Matcher.new(credit_lists).matches
 
       expect(matcher.keys).to eq(matching_ids)
@@ -68,19 +67,36 @@ RSpec.describe "Assembly line", type: :model do
   end
 
   describe "CreditCacheManager" do
-    it "manages" do
+
+    before do
       actor_ids = %w(person-500 person-287 person-192)
-      remove_genres = [99, 10402]
+      @forbidden_genres = [99, 10402]
+      @credit_cache_manager = CreditCacheManager.new(actor_ids, @forbidden_genres)
+    end
+    
+    it "filters genres" do
+      filtered_credits = @credit_cache_manager.filtered_credits
 
-      filtered_lists = CreditCacheManager.new(actor_ids).filter_genres
+      tc_genres = filtered_credits["person-500"].map{|x|x[:genre_ids]}.flatten.uniq
+      bp_genres = filtered_credits["person-287"].map{|x|x[:genre_ids]}.flatten.uniq
+      mf_genres = filtered_credits["person-192"].map{|x|x[:genre_ids]}.flatten.uniq
 
-      tc_genres = filtered_lists.first.map{|x|x[:genre_ids]}.flatten.uniq
-      bp_genres = filtered_lists.second.map{|x|x[:genre_ids]}.flatten.uniq
-      mf_genres = filtered_lists.third.map{|x|x[:genre_ids]}.flatten.uniq
+      expect(tc_genres).to_not include(@forbidden_genres)
+      expect(bp_genres).to_not include(@forbidden_genres)
+      expect(mf_genres).to_not include(@forbidden_genres)
+    end
 
-      expect(tc_genres).to_not include(remove_genres)
-      expect(bp_genres).to_not include(remove_genres)
-      expect(mf_genres).to_not include(remove_genres)
+    it "returns limited set" do
+      tc_credits = @credit_cache_manager.return_cache_list_for_actor("person-500", 7)
+
+      top_seven = ["War of the Worlds", "Oblivion", "Interview with the Vampire",
+        "Minority Report", "Eyes Wide Shut", "The Last Samurai", "Top Gun"]
+
+      expect(tc_credits.map{|x|x[:name]}).to eq(top_seven)
+    end
+
+    it "returns ordered set" do 
+      
     end
   end
 end

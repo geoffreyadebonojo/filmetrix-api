@@ -1,24 +1,36 @@
 class CreditCacheManager
-  attr_reader :formatted_lists
+  attr_reader :ids, :credits_hash, :forbidden_genres
 
-  def initialize(ids)
+  def initialize(ids, forbidden_genres)
+    @ids = ids
+    @forbidden_genres = forbidden_genres
     credit_lists = CreditList.where(id: ids).map(&:grouped_credits)
-    @formatted_lists = OrderedList.new(credit_lists).format
-  end
+    ordered_lists = OrderedList.new(credit_lists).format
+    
+    list_hash = {}
 
-  def return_cache_list_for_actor(id)
-
-  end
-
-  def filter_genres
-    remove_genres = [99, 10402]
-
-    filtered_lists = formatted_lists.map do |list|
-      list.select! do |item|
-        (item[:genre_ids] & remove_genres).empty?
-      end
+    x = ids.each_with_index do |id, i|
+      list_hash[id] = ordered_lists[i]
     end
 
-    return filtered_lists
+    @credits_hash = list_hash
+    
+  end
+
+  def return_cache_list_for_actor(actor_id, count)
+    filtered_credits[actor_id].first(count)
+  end
+
+  def filtered_credits
+    new_hash = {}
+
+    ids.each do |id| 
+      filtered = credits_hash[id].reject do |item|
+        (item[:genre_ids] & forbidden_genres).present?
+      end
+      new_hash[id] = filtered
+    end
+
+    new_hash
   end
 end
