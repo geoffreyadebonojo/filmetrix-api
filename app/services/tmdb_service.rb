@@ -11,10 +11,10 @@ class TmdbService
 
 		return [] if body["total_results"] == 0
 
-		search = Search.create!({
+		search = Search.create!(
 			term: term,
 			body: body
-		})
+		)
 
 		return search.data
 	end
@@ -36,10 +36,10 @@ class TmdbService
 			body = JSON.parse(response.body)
 			body["media_type"] = entity
 
-			details = Detail.create!({
+			details = Detail.create!(
 				id: id,
 				body: body
-			})
+			)
 
 			return details
 		end
