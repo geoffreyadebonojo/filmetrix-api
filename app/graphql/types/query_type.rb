@@ -35,7 +35,7 @@ module Types
     def cacheRequest(args)     
 
       existing_ids = ['person-500', 'person-287', 'person-192']
-      
+
       return CollectGraphEntities.new(existing_ids, args[:count]).data
     end
     

@@ -3,12 +3,9 @@ class CollectGraphEntities
 
   def initialize(ids, count)
     @ids = ids
-    @data = collect_data
     @count = count
+    @data = collect_data
   end
-
-
-  private
 
   def collect_data
     @links = []
@@ -20,7 +17,11 @@ class CollectGraphEntities
 
     ids.zip(OrderedLists.new(credit_lists).format).each do |list|
       id = list[0]
-      credits = list[1]
+      credits = list[1].filter do |item|
+        (item.fetch(:genre_ids) & [10402, 99]).empty?
+      end.first(count)
+
+      binding.pry
 
       details = Detail.find(id)
       anchor = anchor_node(id, details.data)
@@ -34,11 +35,11 @@ class CollectGraphEntities
       end
 
       collected.unshift(anchor)
-      @nodes.concat(collected).uniq
+      @nodes.concat(collected)
     end
 
     { links: @links,
-      nodes: @nodes }
+      nodes: @nodes.uniq }
   end
 
   def collect_nodes(id, grouped_credits)
