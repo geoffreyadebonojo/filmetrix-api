@@ -21,7 +21,8 @@ module Types
     end
     
     field :querySingle, Types::D3::QuerySingleType, null: true do
-      argument :ids, [String]
+      argument :ids, String
+      argument :existing, String
     end
 
 
@@ -30,13 +31,19 @@ module Types
     field :cacheRequest, Types::D3::QuerySingleType, null: true do
       argument :id, String
       argument :count, Integer
+      argument :graphId, String
     end
     
-    def cacheRequest(args)     
+    def cacheRequest(args)
+      @existing = Rails.cache.fetch(args[:graphId]) {[]}
+      if @existing.exclude?(args[:id])
+        @existing << args[:id]
+        Rails.cache.write(args[:graphId], @existing)
+      end
 
-      existing_ids = ['person-500', 'person-287', 'person-192']
-
-      return CollectGraphEntities.new(existing_ids, args[:count]).data
+      data =CollectGraphEntities.new(@existing, args[:count]).data
+      binding.pry
+      return data
     end
     
 
@@ -46,7 +53,7 @@ module Types
     # end
 
     def querySingle(args)
-      ids = args[:ids]
+
       data = assembler(args)
       # Rails.cache.fetch("query-single-#{ids.first}") do
 
@@ -122,22 +129,19 @@ module Types
       # ids = args[:ids]
       # count = args[:count]
       # until I can figure out how to fix FE
-      ids = args[:ids].first.split(",")
+      id = args[:ids]
+      existing = args[:existing].split(",")
 
       links = []
+      links = []
       
-      all = ids.map do |id|
-        {
-          anchor: TmdbService.details(id),
-          credits: TmdbService.credits(id).grouped_credits
-        }
-      end
+      all = [{
+        anchor: TmdbService.details(id),
+        credits: TmdbService.credits(id).grouped_credits
+      }]
 
-      c = all.map{|e|e[:credits]}.flatten
-             .map{|x|x[:id]}
-             .group_by{|i|i}.to_a
-             .filter{|x|x[1].count>1}
-             .map{|d|d[0]}
+      cl = CreditList.where(id: existing).map(&:grouped_credits)
+      c = Matcher.new(cl).found_matches
 
       overlaps = []
       nodes = []

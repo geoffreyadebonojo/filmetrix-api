@@ -10,36 +10,41 @@ class CollectGraphEntities
   def collect_data
     @links = []
     @nodes = []
+    @result = []
 
     credit_lists = ids.map do |id|
       CreditList.find(id).grouped_credits
     end
 
+    entry = {}
+
     ids.zip(OrderedLists.new(credit_lists).format).each do |list|
       id = list[0]
-      credits = list[1].filter do |item|
-        (item.fetch(:genre_ids) & [10402, 99]).empty?
-      end.first(count)
 
-      binding.pry
+      credits = list[1].filter do |item|
+        (item.fetch(:genre_ids, []) & [10402, 99]).empty?
+      end.first(count)
 
       details = Detail.find(id)
       anchor = anchor_node(id, details.data)
+
       collected = collect_nodes(id, credits)
+      collected.unshift(anchor)
       
-      credits.each do |credit|
-        @links.push({ 
+      l = credits.map do |credit|
+        { 
           source: list[0],
           target: credit[:id],
-          roles:  credit[:roles] })
+          roles:  credit[:roles] }
       end
 
-      collected.unshift(anchor)
-      @nodes.concat(collected)
+      entry[id] = {
+        nodes: collected.first(count+1),
+        links: l.first(count)
+      }
     end
 
-    { links: @links,
-      nodes: @nodes.uniq }
+    entry
   end
 
   def collect_nodes(id, grouped_credits)
