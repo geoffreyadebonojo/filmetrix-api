@@ -24,6 +24,24 @@ module Types
       argument :ids, [String]
     end
 
+
+
+
+    field :cacheRequest, Types::D3::QuerySingleType, null: true do
+      argument :id, String
+      argument :count, Integer
+    end
+    
+    def cacheRequest(args)     
+
+      existing_ids = ['person-500', 'person-287', 'person-192']
+      
+      return GraphDataCollector.collect(
+        actor_ids: existing_ids,
+        count: args[:count] )
+    end
+    
+
     # field :graphData, Types::D3::GraphDataType, null: true do
     #   argument :ids, [String]
     #   argument :count, Integer

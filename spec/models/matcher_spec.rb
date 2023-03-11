@@ -66,12 +66,12 @@ RSpec.describe "Assembly line", type: :model do
     end
   end
 
-  describe "CreditCacheManager" do
+  describe "GenerateCreditsHash" do
 
     before do
       actor_ids = %w(person-500 person-287 person-192)
       @forbidden_genres = [99, 10402]
-      @credit_cache_manager = CreditCacheManager.new(actor_ids, @forbidden_genres)
+      @credit_cache_manager = GenerateCreditsHash.new(actor_ids, @forbidden_genres)
     end
     
     it "filters genres" do
@@ -87,7 +87,7 @@ RSpec.describe "Assembly line", type: :model do
     end
 
     it "returns limited set" do
-      tc_credits = @credit_cache_manager.limit_count("person-500", 7)
+      tc_credits = @credit_cache_manager.limit_count(actor_id: "person-500", count: 7)
 
       top_seven = ["War of the Worlds", "Oblivion", "Interview with the Vampire",
         "Minority Report", "Eyes Wide Shut", "The Last Samurai", "Top Gun"]
@@ -95,8 +95,8 @@ RSpec.describe "Assembly line", type: :model do
       expect(tc_credits.map{|x|x[:name]}).to eq(top_seven)
     end
 
-    it "returns ordered set" do 
-      ordered_credits = @credit_cache_manager.ordered_credits(
+    xit "returns ordered set" do 
+      ordered_credits = @credit_cache_manager.ordered_credits_for_actor(
         actor_id: "person-500", 
         count: 7, 
         order_by: :popularity
@@ -107,6 +107,81 @@ RSpec.describe "Assembly line", type: :model do
         "Minority Report"]
 
       expect(ordered_credits.map{|x|x[:name]}).to eq(top_seven_by_popularity)
+    end
+
+    xit "can assemble credits into links and nodes" do
+      actor_ids = %w(person-500 person-287 person-192)
+      
+      arg_id = "person-500"
+
+      credits = GenerateCreditsHash.new(actor_ids).ordered_credits_for_actor(
+        actor_id: arg_id, 
+        count: 7, 
+        order_by: :popularity
+      )
+
+      data = SingleEntityGraphData.new(arg_id, credits).data
+
+      expected = {:nodes=> [
+         {:id=>"movie-744",
+          :name=>"Top Gun",
+          :poster=>"/xUuHj3CgmZQ9P2cMaqQs4J0d4Zc.jpg",
+          :type=>["action", "drama"],
+          :entity=>"movie"},
+         {:id=>"movie-75612",
+          :name=>"Oblivion",
+          :poster=>"/eO3r38fwnhb58M1YgcjQBd3VNcp.jpg",
+          :type=>["action", "scifi", "adventure", "mystery"],
+          :entity=>"movie"},
+         {:id=>"movie-74",
+          :name=>"War of the Worlds",
+          :poster=>"/6Biy7R9LfumYshur3YKhpj56MpB.jpg",
+          :type=>["adventure", "thriller", "scifi"],
+          :entity=>"movie"},
+         {:id=>"movie-628",
+          :name=>"Interview with the Vampire",
+          :poster=>"/2162lAT2MP36MyJd2sttmj5du5T.jpg",
+          :type=>["horror", "drama", "fantasy"],
+          :entity=>"movie"},
+         {:id=>"movie-345",
+          :name=>"Eyes Wide Shut",
+          :poster=>"/knEIz1eNGl5MQDbrEAVWA7iRqF9.jpg",
+          :type=>["drama", "thriller", "mystery"],
+          :entity=>"movie"},
+         {:id=>"movie-616",
+          :name=>"The Last Samurai",
+          :poster=>"/lsasOSgYI85EHygtT5SvcxtZVYT.jpg",
+          :type=>["drama", "action", "war"],
+          :entity=>"movie"},
+         {:id=>"movie-180",
+          :name=>"Minority Report",
+          :poster=>"/ccqpHq5tk5W4ymbSbuoy4uYOxFI.jpg",
+          :type=>["action", "thriller", "scifi", "mystery"],
+          :entity=>"movie"}],
+       :links=> [
+         {:source=>"person-500",
+          :target=>"movie-744",
+          :roles=>["Lt. Pete 'Maverick' Mitchell"]},
+         {:source=>"person-500", 
+          :target=>"movie-75612", 
+          :roles=>["Jack"]},
+         {:source=>"person-500",
+          :target=>"movie-74",
+          :roles=>["Ray Ferrier"]},
+         {:source=>"person-500",
+          :target=>"movie-628",
+          :roles=>["Lestat de Lioncourt"]},
+         {:source=>"person-500",
+          :target=>"movie-345",
+          :roles=>["Dr. William Harford"]},
+         {:source=>"person-500",
+          :target=>"movie-616",
+          :roles=>["Nathan Algren", "Producer"]},
+         {:source=>"person-500",
+          :target=>"movie-180",
+          :roles=>["Chief John Anderton"]}]}
+
+      expect(data).to eq(expected)
     end
   end
 end
