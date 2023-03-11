@@ -1,9 +1,9 @@
-class OrderedList
+class OrderedLists
   attr_reader :credit_lists, :matching_ids
 
   def initialize(credit_lists)
     @credit_lists = credit_lists
-    @matching_ids = Matcher.new(credit_lists).matches.keys
+    @matching_ids = Matcher.new(credit_lists).found_matches.keys
   end
   
   def format

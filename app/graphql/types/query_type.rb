@@ -36,9 +36,7 @@ module Types
 
       existing_ids = ['person-500', 'person-287', 'person-192']
       
-      return GraphDataCollector.collect(
-        actor_ids: existing_ids,
-        count: args[:count] )
+      return CollectGraphEntities.new(existing_ids, args[:count]).data
     end
     
 

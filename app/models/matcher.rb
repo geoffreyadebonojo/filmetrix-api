@@ -1,13 +1,13 @@
 class Matcher
-  attr_reader :credit_lists
-  
-  def initialize(credit_lists)
-    @credit_lists = credit_lists
+  attr_accessor :grouped_credits
+
+  def initialize(grouped_credits)
+    @grouped_credits = grouped_credits
   end
 
-  def matches
-    credit_lists.flatten(2)
-         .group_by{|x|x[:id]}.to_a
-         .filter{|y|y[1].count>1}.to_h
+  def found_matches
+    grouped_credits.flatten(2)
+                .group_by{|x|x[:id]}.to_a
+                .filter{|y|y[1].count>1}.to_h
   end
 end
