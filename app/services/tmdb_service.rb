@@ -46,26 +46,24 @@ class TmdbService
 	end
 
 	def self.credits(id)
+
 		entity, id_number = id.split("-")
 		if %w(person movie tv).exclude?(entity) 
 			raise "#{entity} not an accepted entity type"
 		else
 			# use CreditList.where to just scoop them all at once?
 			url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
-
-			existing = CreditList.find_by(id: id)
 			
+			existing = CreditList.find_by(id: id)
+			return existing if existing.present?
+
 			response = Faraday.get url
 			body = JSON.parse(response.body)
-			
-			credits_list =  if existing.present?
-												existing
-											else
-												CreditList.create!({
-													id: id,
-													body: body
-												})
-											end
+
+			credits_list = CreditList.create!({
+				id: id,
+				body: body
+			})
 
 			return credits_list
 		end

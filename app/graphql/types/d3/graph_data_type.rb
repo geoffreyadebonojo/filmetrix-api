@@ -2,8 +2,7 @@
 
 module Types
   class D3::GraphDataType < Types::BaseObject
-    field :nodes, [Types::D3::NodeType]
-    field :links, [Types::D3::LinkType]
+    field :graphEntities, [Types::D3::GraphEntity]
 
     def nodes
       object[:nodes]

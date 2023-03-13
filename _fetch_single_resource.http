@@ -4,7 +4,8 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  querySingle(ids:["person-500"]) {
+  graphData(ids:["person-500","person-287","person-192"]) {
+    id
     nodes {
       id
       name
@@ -17,5 +18,5 @@ query {
       target
       roles
     }
-  }    
+  }
 }

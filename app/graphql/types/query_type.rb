@@ -20,52 +20,19 @@ module Types
       argument :id, String
     end
     
-    field :querySingle, Types::D3::QuerySingleType, null: true do
+    field :graphEntity, Types::D3::GraphEntityType, null: true do
+      argument :ids, [String]
+    end
+
+    field :graphData, [Types::D3::GraphEntityType], null: true do
       argument :ids, String
-      argument :existing, String
     end
 
+    def graphData(args)
+      data = assembler(args)
 
-
-
-    field :cacheRequest, Types::D3::QuerySingleType, null: true do
-      argument :id, String
-      argument :count, Integer
-      argument :graphId, String
-    end
-    
-    def cacheRequest(args)
-      @existing = Rails.cache.fetch(args[:graphId]) {[]}
-      if @existing.exclude?(args[:id])
-        @existing << args[:id]
-        Rails.cache.write(args[:graphId], @existing)
-      end
-
-      data =CollectGraphEntities.new(@existing, args[:count]).data
-      binding.pry
       return data
     end
-    
-
-    # field :graphData, Types::D3::GraphDataType, null: true do
-    #   argument :ids, [String]
-    #   argument :count, Integer
-    # end
-
-    def querySingle(args)
-
-      data = assembler(args)
-      # Rails.cache.fetch("query-single-#{ids.first}") do
-
-      return {
-        nodes: data[:nodes],
-        links: data[:links]
-      }
-    end
-
-    # def graphData(args)
-    #   assembler(args)
-    # end
 
     def details(args)
       TmdbService.details(args[:id]).data
@@ -126,36 +93,34 @@ module Types
     private
 
     def assembler(args)
-      # ids = args[:ids]
-      # count = args[:count]
-      # until I can figure out how to fix FE
-      id = args[:ids]
-      existing = args[:existing].split(",")
+      cl =   []
+      resp = []
+      # resp = {}
 
-      links = []
-      links = []
-      
-      all = [{
-        anchor: TmdbService.details(id),
-        credits: TmdbService.credits(id).grouped_credits
-      }]
+      all = args[:ids].split(",").map do |id|
+        gl = TmdbService.credits(id).grouped_credits
+        cl << gl
+        {
+          anchor: TmdbService.details(id),
+          credits: gl
+        }
+      end
 
-      cl = CreditList.where(id: existing).map(&:grouped_credits)
-      c = Matcher.new(cl).found_matches
-
-      overlaps = []
-      nodes = []
-      links = []
+      @matcher_found_matches = Matcher.new(cl).found_matches
+  
 
       all.each do |z|
         anchor_id = z[:anchor].id
-        anchor = z[:anchor].data
-        
+        anchor =    z[:anchor].data
         inner_list = []
+        inner_links = []
+        inner_nodes = []
+        matches_for_anchor = []
+        other = []
 
         anchor_node = { 
-          id: anchor_id, 
-          name: anchor[:name] || anchor[:title], 
+              id: anchor_id, 
+            name: anchor[:name] || anchor[:title], 
           poster: anchor[:profile_path] || anchor[:poster_path],
           entity: anchor[:media_type]
         }
@@ -166,15 +131,13 @@ module Types
           anchor_node[:type] = anchor[:genres].map{|x|genre_name(x[:id])}
         end
 
-        nodes << anchor_node
-        matches = []
-        other = []
+        inner_nodes << anchor_node
 
         if anchor[:media_type] == "person"
-          z[:credits].each.map do |y|
+          z[:credits].each do |y|
             if y[:genre_ids].exclude?(10402) && y[:genre_ids].exclude?(99) && y[:genre_ids].present?
-              if c.include?(y[:id])
-                matches << y
+              if @matcher_found_matches.include?(y[:id])
+                matches_for_anchor << y
               else
                 other << y
               end
@@ -186,31 +149,31 @@ module Types
           end
         end
 
-        inner_list += matches
+        inner_list += matches_for_anchor
         inner_list += other
 
         inner_list.each do |w|
           if anchor[:media_type] == "person"
-            links << { 
+            inner_links << { 
               source: anchor_id, 
               target: w[:id], 
-              roles: w[:roles]
+               roles: w[:roles]
             }
           else
-            links << { 
+            inner_links << { 
               source: w[:id], 
               target: anchor_id, 
-              roles: w[:roles]
+               roles: w[:roles]
             }
           end
         end
 
-        nodes << inner_list.map do |li|
+        inner_nodes << inner_list.map do |li|
           obj = {
-            id: li[:id],
-            name: li[:name],
+                id: li[:id],
+              name: li[:name],
             poster: li[:poster],
-            type: li[:type]
+              type: li[:type]
           }
 
           if li[:media_type] == "person"
@@ -222,13 +185,21 @@ module Types
           obj[:entity] = li[:media_type]
 
           obj
-        end
+        end.flatten
+        
+        resp << {
+          id: anchor_id,
+          nodes: inner_nodes.flatten.first(20),
+          links: inner_links.flatten.first(20)
+        }
+
+        # resp[anchor_id] = {
+        #   nodes: inner_nodes.flatten.first(20),
+        #   links: inner_links.flatten.first(20)
+        # }
       end
 
-      {
-        nodes: nodes.flatten.uniq,
-        links: links.flatten.uniq
-      }
+      resp
     end
 
     def genre_name(code)
