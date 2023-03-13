@@ -98,10 +98,17 @@ module Types
       # resp = {}
 
       all = args[:ids].split(",").map do |id|
-        gl = TmdbService.credits(id).grouped_credits
+        gl = Rails.cache.fetch("credits--#{id}") {
+          TmdbService.credits(id).grouped_credits
+        }
         cl << gl
+
+        an = Rails.cache.fetch("details--#{id}") {
+          TmdbService.details(id)
+        }
+
         {
-          anchor: TmdbService.details(id),
+          anchor: an,
           credits: gl
         }
       end
