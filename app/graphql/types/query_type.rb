@@ -115,7 +115,6 @@ module Types
 
       @matcher_found_matches = Matcher.new(cl).found_matches
   
-
       all.each do |z|
         anchor_id = z[:anchor].id
         anchor =    z[:anchor].data
@@ -196,8 +195,8 @@ module Types
         
         resp << {
           id: anchor_id,
-          nodes: inner_nodes.flatten.first(20),
-          links: inner_links.flatten.first(20)
+          nodes: inner_nodes.flatten.first(30),
+          links: inner_links.flatten.first(30)
         }
 
         # resp[anchor_id] = {
