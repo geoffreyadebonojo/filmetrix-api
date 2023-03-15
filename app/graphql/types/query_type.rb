@@ -54,34 +54,14 @@ module Types
         # matches_for_anchor = []
         # other = []
 
-        anchor_node = assembler.define_anchor
-        
-        inner_nodes << anchor_node
+        inner_nodes << assembler.define_anchor
 
         assembler.assemble_credits(matches)
-
-        inner_list = assembler.inner_list
-
-        if anchor[:media_type] != "person"
-          # inner_list = Filter.new(inner_list).apply("Directing")
-          inner_list = Filter.new(inner_list).gather
-        end
-
-        inner_list.each do |w|
-          if anchor[:media_type] == "person"
-            inner_links << { 
-              source: anchor_id, 
-              target: w[:id], 
-              roles: w[:roles]
-            }
-          else
-            inner_links << { 
-              source: w[:id], 
-              target: anchor_id, 
-              roles: w[:roles]
-            }
-          end
-        end
+        inner_list = assembler.filtered
+        
+        
+        assembler.assemble_inner_links
+        inner_links = assembler.inner_links
 
         inner_nodes << inner_list.map do |li|
           obj = {
@@ -101,7 +81,7 @@ module Types
 
           obj
         end.flatten
-        
+
         resp << {
              id: anchor_id,
           nodes: inner_nodes.flatten.first(30),

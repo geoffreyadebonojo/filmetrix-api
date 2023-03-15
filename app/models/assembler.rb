@@ -1,7 +1,7 @@
 class Assembler
   attr_reader :incoming, :id, :anchor, :credits,
               :matches_for_anchor, :other,
-              :inner_nodes, :inner_list
+              :inner_nodes, :inner_list, :inner_links
 
   def initialize(incoming)
     @id = incoming[:anchor].id
@@ -12,6 +12,34 @@ class Assembler
     @inner_nodes = []
     @matches_for_anchor = []
     @other = []
+    @inner_links = []
+  end
+
+  def assemble_inner_links
+    filtered.each do |w|
+      if anchor[:media_type] == "person"
+        @inner_links << { 
+          source: id, 
+          target: w[:id], 
+          roles: w[:roles]
+        }
+      else
+        @inner_links << { 
+          source: w[:id], 
+          target: id, 
+          roles: w[:roles]
+        }
+      end
+    end
+  end
+
+  def filtered
+    if anchor[:media_type] != "person"
+      # inner_list = Filter.new(inner_list).apply("Directing")
+      Filter.new(inner_list).gather
+    else
+      inner_list
+    end
   end
 
   def add_matches
