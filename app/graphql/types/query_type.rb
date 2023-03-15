@@ -14,24 +14,8 @@ module Types
 
     def search(args)
       results = TmdbService.search(args[:term])[:results]
-
       return [] if results.empty?
-      nodes = []
-      
-      results.each do |r|
-        if r[:media_type] == "person"
-          nodes << Result.person_entity(r)
-
-          r[:known_for].each do |m|
-            nodes << Result.media_entity(m)
-          end
-        else
-
-          nodes << Result.media_entity(r)
-        end
-      end
-
-      return nodes
+      Result.new(results).nodes
     end
 
     def details(args)
@@ -45,70 +29,38 @@ module Types
     private
 
     def assembler(args)
-      cl =   []
+      credit_list =   []
       resp = []
       # resp = {}
 
       all = args[:ids].split(",").map do |id|
-        # gl = Rails.cache.fetch("credits--#{id}") {
-          gl = TmdbService.credits(id).grouped_credits
-        # }
-        cl << gl
-
-        # an = Rails.cache.fetch("details--#{id}") {
-          an = TmdbService.details(id)
-        # }
-        
-        {
-          anchor: an,
-          credits: gl
-        }
+        credits = check_credit_cache(id)
+        credit_list << credits
+        details = check_detail_cache(id)
+        { anchor: details,
+          credits: credits }
       end
 
-      @matcher_found_matches = Matcher.new(cl).found_matches
+      matches = Matcher.new(credit_list).found_matches
   
       all.each do |z|
         anchor_id = z[:anchor].id
-        anchor =    z[:anchor].data
+        anchor = z[:anchor].data
+        assembler = Assembler.new(z)
+
         inner_list = []
         inner_links = []
         inner_nodes = []
-        matches_for_anchor = []
-        other = []
+        # matches_for_anchor = []
+        # other = []
 
-        anchor_node = { 
-              id: anchor_id, 
-            name: anchor[:name] || anchor[:title], 
-          poster: anchor[:profile_path] || anchor[:poster_path],
-          entity: anchor[:media_type]
-        }
+        anchor_node = assembler.define_anchor
         
-        if anchor[:media_type] == "person"
-          anchor_node[:type] = [anchor[:known_for_department].downcase]
-        else
-          anchor_node[:type] = anchor[:genres].map{|x|genre_name(x[:id])}
-        end
-
         inner_nodes << anchor_node
 
-        if anchor[:media_type] == "person"
-          z[:credits].each do |y|
-            if y[:genre_ids].exclude?(10402) && y[:genre_ids].exclude?(99) && y[:genre_ids].present?
-              if @matcher_found_matches.include?(y[:id])
-                matches_for_anchor << y
-              else
-                other << y
-              end
-            end
-          end
-        else
-          z[:credits].each.map do |y|
-            other << y
-          end
-        end
+        assembler.assemble_credits(matches)
 
-        inner_list += matches_for_anchor
-        inner_list += other
+        inner_list = assembler.inner_list
 
         if anchor[:media_type] != "person"
           # inner_list = Filter.new(inner_list).apply("Directing")
@@ -120,23 +72,23 @@ module Types
             inner_links << { 
               source: anchor_id, 
               target: w[:id], 
-               roles: w[:roles]
+              roles: w[:roles]
             }
           else
             inner_links << { 
               source: w[:id], 
               target: anchor_id, 
-               roles: w[:roles]
+              roles: w[:roles]
             }
           end
         end
 
         inner_nodes << inner_list.map do |li|
           obj = {
-                id: li[:id],
-              name: li[:name],
+            id: li[:id],
+            name: li[:name],
             poster: li[:poster],
-              type: li[:type]
+            type: li[:type]
           }
 
           if li[:media_type] == "person"
@@ -184,6 +136,26 @@ module Types
       }
 
       vals[code]
+    end
+
+    def check_credit_cache(id)
+      begin 
+        Rails.cache.fetch("credits--#{id}") do
+          TmdbService.credits(id).grouped_credits
+        end
+      rescue
+        TmdbService.credits(id).grouped_credits
+      end
+    end
+
+    def check_detail_cache(id)
+      begin 
+        Rails.cache.fetch("details--#{id}") do
+          TmdbService.details(id)
+        end
+      rescue
+        TmdbService.details(id)
+      end
     end
   end
 end
