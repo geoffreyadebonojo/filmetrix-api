@@ -1,17 +1,5 @@
-require "ostruct"
-
 module Types
   class QueryType < Types::BaseObject
-    field :nodes, [Types::D3::NodeType], null: true do
-      argument :ids, [String]
-      argument :count, Integer
-    end
-
-    field :links, [Types::D3::LinkType], null: true do
-      argument :ids, [String]
-      argument :count, Integer
-    end
-    
     field :search, [Types::D3::NodeType], null: true do
       argument :term, String
     end
@@ -19,71 +7,40 @@ module Types
     field :details, Types::D3::DetailType, null: true do
       argument :id, String
     end
-    
-    field :graphEntity, Types::D3::GraphEntityType, null: true do
-      argument :ids, [String]
-    end
 
     field :graphData, [Types::D3::GraphEntityType], null: true do
       argument :ids, String
-    end
-
-    def graphData(args)
-      data = assembler(args)
-      return data
-    end
-
-    def details(args)
-      TmdbService.details(args[:id]).data
     end
 
     def search(args)
       results = TmdbService.search(args[:term])[:results]
 
       return [] if results.empty?
-
       nodes = []
       
       results.each do |r|
         if r[:media_type] == "person"
-          node = OpenStruct.new
-          node.media_type = r[:media_type]
-          node.id = [r[:media_type],r[:id]].join("-")
-          node.name = r[:name]
-          node.poster = r[:profile_path]
-          nodes << node
+          nodes << Result.person_entity(r)
 
           r[:known_for].each do |m|
-            node = OpenStruct.new
-            node.media_type = m[:media_type]
-            node.id =[m[:media_type],m[:id]].join("-")
-            node.name = m[:title] || m[:original_name]
-            node.poster = m[:poster_path]
-            nodes << node
+            nodes << Result.media_entity(m)
           end
         else
 
-          node = OpenStruct.new
-          node.media_type = r[:media_type]
-          node.id = [r[:media_type],r[:id]].join("-")
-          node.name = r[:title] || r[:original_name]
-          node.poster = r[:poster_path]
-          nodes << node
+          nodes << Result.media_entity(r)
         end
       end
 
       return nodes
     end
 
-    # def links(args)    
-    #   @data ||= assembler(args)
-    #   return @data[:links]
-    # end
-    
-    # def nodes(args)
-    #   @data ||= assembler(args)
-    #   return @data[:nodes]
-    # end
+    def details(args)
+      TmdbService.details(args[:id]).data
+    end
+
+    def graphData(args)
+      return assembler(args)
+    end
 
     private
 
