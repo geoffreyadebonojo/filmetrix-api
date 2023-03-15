@@ -24,13 +24,14 @@ module Types
     # end
 
     def summary
-      object[:biography] || object[:overview]
+      object[:biography] || object[:overview] || ''
     end
 
     def year
       # get more specific?
       # Birthday popover??
       date = object[:birthday] || object[:release_date] || object[:first_air_date]
+      return '' if date.nil?
       Date.parse(date).year
     end
 
@@ -50,11 +51,12 @@ module Types
       else
         imdb_root = "https://www.imdb.com/title/"
       end
-      imdb_root + object[:imdb_id]
+
+      imdb_root + object[:imdb_id] || ''
     end
 
     def name
-      object[:name] || object[:title]
+      object[:name] || object[:title] || ''
     end
 
     # def known_for_department
@@ -66,12 +68,12 @@ module Types
     # end
 
     def popularity
-      object[:popularity]
+      object[:popularity] || 0.0
     end
 
     def poster
       poster = object[:profile_path] || object[:poster_path]
-      poster.nil? ? "" : root+poster
+      poster.nil? ? "" : root+poster || ''
     end
 
     def root

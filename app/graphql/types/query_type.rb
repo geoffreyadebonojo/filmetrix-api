@@ -30,16 +30,11 @@ module Types
 
     def graphData(args)
       data = assembler(args)
-
       return data
     end
 
     def details(args)
       TmdbService.details(args[:id]).data
-    end
-
-    def credits(args)
-      TmdbService.credits(args[:id]).grouped_credits
     end
 
     def search(args)
@@ -80,15 +75,15 @@ module Types
       return nodes
     end
 
-    def links(args)    
-      @data ||= assembler(args)
-      return @data[:links]
-    end
+    # def links(args)    
+    #   @data ||= assembler(args)
+    #   return @data[:links]
+    # end
     
-    def nodes(args)
-      @data ||= assembler(args)
-      return @data[:nodes]
-    end
+    # def nodes(args)
+    #   @data ||= assembler(args)
+    #   return @data[:nodes]
+    # end
 
     private
 
@@ -98,15 +93,15 @@ module Types
       # resp = {}
 
       all = args[:ids].split(",").map do |id|
-        gl = Rails.cache.fetch("credits--#{id}") {
-          TmdbService.credits(id).grouped_credits
-        }
+        # gl = Rails.cache.fetch("credits--#{id}") {
+          gl = TmdbService.credits(id).grouped_credits
+        # }
         cl << gl
 
-        an = Rails.cache.fetch("details--#{id}") {
-          TmdbService.details(id)
-        }
-
+        # an = Rails.cache.fetch("details--#{id}") {
+          an = TmdbService.details(id)
+        # }
+        
         {
           anchor: an,
           credits: gl
@@ -158,6 +153,11 @@ module Types
         inner_list += matches_for_anchor
         inner_list += other
 
+        if anchor[:media_type] != "person"
+          # inner_list = Filter.new(inner_list).apply("Directing")
+          inner_list = Filter.new(inner_list).gather
+        end
+
         inner_list.each do |w|
           if anchor[:media_type] == "person"
             inner_links << { 
@@ -194,15 +194,10 @@ module Types
         end.flatten
         
         resp << {
-          id: anchor_id,
+             id: anchor_id,
           nodes: inner_nodes.flatten.first(30),
           links: inner_links.flatten.first(30)
         }
-
-        # resp[anchor_id] = {
-        #   nodes: inner_nodes.flatten.first(20),
-        #   links: inner_links.flatten.first(20)
-        # }
       end
 
       resp
