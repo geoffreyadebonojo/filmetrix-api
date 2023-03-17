@@ -13,6 +13,7 @@ gem "faraday"
 gem "rack-cors"
 gem "json"
 gem "graphql"
+gem 'dotenv-rails'
 
 group :development, :test do
   gem "pry"

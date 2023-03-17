@@ -15,6 +15,7 @@ module Types
     def search(args)
       results = TmdbService.search(args[:term])[:results]
       return [] if results.empty?
+
       Result.new(results).nodes
     end
 
@@ -23,17 +24,16 @@ module Types
     end
 
     def graphData(args)
-      return assembler(args)
+      assemble_graph_data(args)
     end
 
     private
 
-    def assembler(args)
-      credit_list =   []
-      resp = []
-      # resp = {}
+    def assemble_graph_data(args)
+      credit_list = []
+      response = []
 
-      all = args[:ids].split(",").map do |id|
+      all= args[:ids].split(",").map do |id|
         credits = check_credit_cache(id)
         credit_list << credits
         details = check_detail_cache(id)
@@ -41,81 +41,15 @@ module Types
           credits: credits }
       end
 
-      matches = Matcher.new(credit_list).found_matches
-  
-      all.each do |z|
-        anchor_id = z[:anchor].id
-        anchor = z[:anchor].data
-        assembler = Assembler.new(z)
-
-        inner_list = []
-        inner_links = []
-        inner_nodes = []
-        # matches_for_anchor = []
-        # other = []
-
-        inner_nodes << assembler.define_anchor
-
-        assembler.assemble_credits(matches)
-        inner_list = assembler.filtered
-        
-        
+      all.each do |entity|
+        assembler = Assembler.new(entity)
+        assembler.assemble_credits( Matcher.new(credit_list).found_matches )
         assembler.assemble_inner_links
-        inner_links = assembler.inner_links
-
-        inner_nodes << inner_list.map do |li|
-          obj = {
-            id: li[:id],
-            name: li[:name],
-            poster: li[:poster],
-            type: li[:type]
-          }
-
-          if li[:media_type] == "person"
-            obj[:type] = li[:departments].map{|x|x.gsub('\u0026', "&").downcase}
-          else
-            obj[:type] = li[:genre_ids].map{|x|genre_name(x)}
-          end
-
-          obj[:entity] = li[:media_type]
-
-          obj
-        end.flatten
-
-        resp << {
-             id: anchor_id,
-          nodes: inner_nodes.flatten.first(30),
-          links: inner_links.flatten.first(30)
-        }
+        assembler.assemble_inner_nodes
+        response << assembler.assembled_response
       end
 
-      resp
-    end
-
-    def genre_name(code)
-      vals = {
-        28=> 'action',
-        12=> 'adventure',
-        16=> 'animation',
-        35=> 'comedy',
-        80=> 'crime',
-        99=> 'documentary',
-        18=> 'drama',
-        10751=> 'family',
-        14=> 'fantasy',
-        36=> 'history',
-        27=> 'horror',
-        10402=> 'music',
-        9648=> 'mystery',
-        10749=> 'romance',
-        878=> 'scifi',
-        10770=> 'tvmovie',
-        53=> 'thriller',
-        10752=> 'war',
-        37=> 'western'
-      }
-
-      vals[code]
+      response
     end
 
     def check_credit_cache(id)

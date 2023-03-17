@@ -1,14 +1,11 @@
 class TmdbService		
 	def self.search(term)
-		url = root + "/search/multi?" + key + query(term)
-
 		existing = Search.where('term LIKE ?', "%#{term.upcase.gsub(" ", "%")}%")
-
 		return existing.first.data if existing.present?
-
+		
+		url = root + "/search/multi?" + key + query(term)
 		response = Faraday.get url
 		body = JSON.parse(response.body)
-
 		return [] if body["total_results"] == 0
 
 		search = Search.create!(
@@ -21,12 +18,12 @@ class TmdbService
 
 	def self.details(id)
 		entity, id_number = id.split("-")
-
 		if %w(person movie tv).exclude?(entity)
 			raise "can't search for entity='#{entity}'" 
 		elsif id_number.to_s === 0
 			raise "can't search for id_number='#{id_number}: must be integer'" 
 		else
+
 			existing = Detail.find_by(id: id)
 			return existing if existing.present?
 
@@ -34,7 +31,7 @@ class TmdbService
 			response = Faraday.get url
 			body = JSON.parse(response.body)
 			body["media_type"] = entity
-
+			
 			details = Detail.create!(
 				id: id,
 				body: body
@@ -49,12 +46,11 @@ class TmdbService
 		if %w(person movie tv).exclude?(entity) 
 			raise "#{entity} not an accepted entity type"
 		else
-			# use CreditList.where to just scoop them all at once?
-			url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
-			
+
 			existing = CreditList.find_by(id: id)
 			return existing if existing.present?
-
+			
+			url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
 			response = Faraday.get url
 			body = JSON.parse(response.body)
 
@@ -79,7 +75,7 @@ class TmdbService
 	end
 
 	def self.key
-		"api_key=a45442ace7db89ca6533dfeb22961976"
+		"api_key=#{ENV.fetch("TMDB_API_KEY")}"
 	end
 end
  

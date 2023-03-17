@@ -15,6 +15,32 @@ class Assembler
     @inner_links = []
   end
 
+  def assembled_response
+    {
+      id:    id,
+      nodes: @inner_nodes.flatten.first(30),
+      links: @inner_links.flatten.first(30)
+    }
+  end
+
+  def assemble_inner_nodes
+    @inner_nodes << filtered.map do |li|
+      obj = { id: li[:id],
+              name: li[:name],
+              poster: li[:poster],
+              type: li[:type] }
+
+      if li[:media_type] == "person"
+        obj[:type] = li[:departments].map{|x|x.gsub('\u0026', "&").downcase}
+      else
+        obj[:type] = li[:genre_ids].map{|x|genre_name(x)}
+      end
+      obj[:entity] = li[:media_type]
+
+      obj
+    end.flatten
+  end
+
   def assemble_inner_links
     filtered.each do |w|
       if anchor[:media_type] == "person"
@@ -62,10 +88,12 @@ class Assembler
       assembled[:type] = anchor[:genres].map{|x|genre_name(x[:id])}
     end
 
-    inner_nodes << assembled
+    @inner_nodes << assembled
   end
 
   def assemble_credits(matches)
+    define_anchor
+    
     if anchor[:media_type] == "person"
       credits.each do |credit|
         if credit[:genre_ids].exclude?(10402) && credit[:genre_ids].exclude?(99) && credit[:genre_ids].present?
