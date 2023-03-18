@@ -1,6 +1,7 @@
 module Types
   class QueryType < Types::BaseObject
     field :search, [Types::D3::NodeType], null: true do
+      argument :key, String
       argument :term, String
     end
 
@@ -12,7 +13,17 @@ module Types
       argument :ids, String
     end
 
+    def accepted_key(key)
+      if Rails.env.production?
+        key === "6GzCesnexrzgnDv3FfxbHBrb"
+      else 
+        true
+      end
+    end
+
     def search(args)
+      return [] unless accepted_key(args[:key])
+
       results = TmdbService.search(args[:term])[:results]
       return [] if results.empty?
 
@@ -20,10 +31,14 @@ module Types
     end
 
     def details(args)
+      return [] if check_key(args[:key])
+
       TmdbService.details(args[:id]).data
     end
 
     def graphData(args)
+      return [] if check_key(args[:key])
+
       assemble_graph_data(args)
     end
 
