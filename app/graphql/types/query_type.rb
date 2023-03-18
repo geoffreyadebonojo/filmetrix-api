@@ -4,12 +4,14 @@ module Types
       argument :key, String
       argument :term, String
     end
-
+    
     field :details, Types::D3::DetailType, null: true do
+      argument :key, String
       argument :id, String
     end
-
+    
     field :graphData, [Types::D3::GraphEntityType], null: true do
+      argument :key, String
       argument :ids, String
     end
 
@@ -31,13 +33,13 @@ module Types
     end
 
     def details(args)
-      return [] if check_key(args[:key])
+      return [] unless accepted_key(args[:key])
 
       TmdbService.details(args[:id]).data
     end
 
     def graphData(args)
-      return [] if check_key(args[:key])
+      return [] unless accepted_key(args[:key])
 
       assemble_graph_data(args)
     end
