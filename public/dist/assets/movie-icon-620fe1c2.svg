@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="26px" height="26px" viewBox="0 0 26 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 55.2 (78181) - https://sketchapp.com -->
+    <title>film icon grey</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Search-Categories" transform="translate(-1586.000000, -165.000000)" fill="#222222" stroke="#222222">
+            <g id="film-icon-grey" transform="translate(1586.000000, 165.000000)">
+                <rect id="Rectangle" stroke-width="4" x="2.95833333" y="13" width="16" height="11" rx="3"></rect>
+                <circle id="Oval" stroke-width="2" cx="7.45833333" cy="5.5" r="4.5"></circle>
+                <circle id="Oval-Copy-2" stroke-width="2" cx="16.9583333" cy="7" r="3"></circle>
+                <path d="M19.9583333,22.7066966 L19.9583333,14.2933034 C19.9583333,14.0171611 20.182191,13.7933034 20.4583333,13.7933034 C20.5992058,13.7933034 20.7335423,13.8527298 20.8283034,13.956967 L24.9583333,18.5 L20.8283034,23.043033 C20.6425499,23.2473618 20.3263257,23.2624201 20.1219969,23.0766666 C20.0177597,22.9819055 19.9583333,22.847569 19.9583333,22.7066966 Z" id="Path-4" stroke-width="2" transform="translate(22.458333, 18.500000) scale(-1, 1) translate(-22.458333, -18.500000) "></path>
+            </g>
+        </g>
+    </g>
+</svg>
