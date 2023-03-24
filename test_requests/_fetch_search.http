@@ -2,6 +2,7 @@ POST https://enigmatic-wildwood-58151.herokuapp.com/graphql
 Content-Type: application/json
 Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
+Access-Control-Allow-Origin: '*
 
 query {
   search(term:"BRAD PITT", key:"6GzCesnexrzgnDv3FfxbHBrb") {
