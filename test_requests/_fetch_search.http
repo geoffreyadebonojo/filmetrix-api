@@ -1,10 +1,10 @@
-POST http://localhost:3000/graphql
+POST https://enigmatic-wildwood-58151.herokuapp.com/graphql
 Content-Type: application/json
 Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  search(term:"BRAD PITT") {
+  search(term:"BRAD PITT", key:"6GzCesnexrzgnDv3FfxbHBrb") {
     id            
     name         
     poster         
