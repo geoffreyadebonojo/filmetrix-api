@@ -7,8 +7,17 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins "*"
-    resource "*",
+    origins "http://localhost:5173"
+
+    resource "/graphql",
+      headers: :any,
+      methods: [:post]
+  end
+
+  allow do
+    origins "https://filmetrix.netlify.app"
+
+    resource "/graphql",
       headers: :any,
       methods: [:post]
   end
