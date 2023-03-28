@@ -15,36 +15,29 @@ module Types
       argument :ids, String
     end
 
-    def accepted_key(key)
-      if Rails.env.production?
-        key === "6GzCesnexrzgnDv3FfxbHBrb"
-      else 
-        true
-      end
-    end
-
     def search(args)
       return [] unless accepted_key(args[:key])
-
       results = TmdbService.search(args[:term])[:results]
       return [] if results.empty?
-
       Result.new(results).nodes
     end
 
     def details(args)
       return [] unless accepted_key(args[:key])
-
       TmdbService.details(args[:id]).data
     end
 
     def graphData(args)
       return [] unless accepted_key(args[:key])
-
-      assemble_graph_data(args)
+      response = assemble_graph_data(args)
+      return response
     end
-
+    
     private
+    
+    def accepted_key(key)
+      Rails.env.production? ? key === "6GzCesnexrzgnDv3FfxbHBrb" : true
+    end
 
     def assemble_graph_data(args)
       credit_list = []
@@ -88,5 +81,12 @@ module Types
         TmdbService.details(id)
       end
     end
+
+    # def update_graph_store(id, list)
+    #   existing = Rails.cache.fetch(id) {[]}
+    #   if existing.map{|x|x[:id]}.sort != list.map{|y|y[:id]}.sort
+    #     Rails.cache.write(id, list)
+    #   end
+    # end
   end
 end
