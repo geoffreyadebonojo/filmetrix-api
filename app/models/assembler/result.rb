@@ -1,4 +1,4 @@
-class Result
+class Assembler::Result
   attr_reader :nodes, :results
 
   def initialize(results)

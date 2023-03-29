@@ -1,4 +1,4 @@
-class Matcher
+class Assembler::Matcher
   attr_accessor :grouped_credits
 
   def initialize(grouped_credits)

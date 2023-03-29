@@ -1,4 +1,4 @@
-class Assembler
+class Assembler::Builder
   attr_reader :incoming, :id, :anchor, :credits,
               :matches_for_anchor, :other,
               :inner_nodes, :inner_list, :inner_links
@@ -62,7 +62,7 @@ class Assembler
   def filtered
     if anchor[:media_type] != "person"
       # inner_list = Filter.new(inner_list).apply("Directing")
-      Filter.new(inner_list).gather
+      Assembler::Filter.new(inner_list).gather
     else
       inner_list
     end

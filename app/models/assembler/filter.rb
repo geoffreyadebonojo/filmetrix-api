@@ -1,4 +1,4 @@
-class Filter
+class Assembler::Filter
   attr_reader :movie_credits
 
   def initialize(movie_credits)

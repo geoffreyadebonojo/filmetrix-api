@@ -19,7 +19,7 @@ module Types
       return [] unless accepted_key(args[:key])
       results = TmdbService.search(args[:term])[:results]
       return [] if results.empty?
-      Result.new(results).nodes
+      Assembler::Result.new(results).nodes
     end
 
     def details(args)
@@ -30,7 +30,18 @@ module Types
     def graphData(args)
       return [] unless accepted_key(args[:key])
       response = assemble_graph_data(args)
-      return response
+
+      existing = SavedGraph.find_by(request_ids: args[:ids])
+
+      if existing.nil?
+        SavedGraph.create!(
+          request_ids: args[:ids],
+          body: response
+        )
+        return response
+      else
+        return existing.data
+      end
     end
     
     private
@@ -52,8 +63,8 @@ module Types
       end
 
       all.each do |entity|
-        assembler = Assembler.new(entity)
-        assembler.assemble_credits( Matcher.new(credit_list).found_matches )
+        assembler = Assembler::Builder.new(entity)
+        assembler.assemble_credits( Assembler::Matcher.new(credit_list).found_matches )
         assembler.assemble_inner_links
         assembler.assemble_inner_nodes
         response << assembler.assembled_response
