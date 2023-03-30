@@ -17,8 +17,8 @@ module Types
 
     field :saveGraph, Types::D3::ResponseType, null: true do
       argument :ids, String
-      argument :counts, [Integer]
-      argument :key, String
+      argument :counts, String
+      # argument :key, String
     end
 
     field :findBySlug, Types::D3::SlugGraph, null: true do
@@ -44,7 +44,7 @@ module Types
     end
     
     def saveGraph(args)
-      anchorsList = args[:ids].split(",").zip(args[:counts])
+      anchorsList = args[:ids].split(",").zip(args[:counts].split(","))      
       savedGraph = SavedGraph.find_by(request_ids: args[:ids])
       
       if savedGraph.present?
@@ -69,10 +69,12 @@ module Types
           response = {
             status: 201,
             msg: "saved",
-            resource_id: savedGraph.id,
-            resource_slug: savedGraph.slug
+            resource_id: sg.id,
+            resource_slug: sg.slug
           }
         else
+          # If somebody tries to save an already existing graph,
+          # create a usergraph for them
           response = {
             status: 403,
             msg: "couldn't save",
