@@ -1,0 +1,22 @@
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL
+
+query {
+  findBySlug(slug:"36c37272"){
+    existing
+    data {
+      nodes {
+        id
+        name
+        poster
+      }
+      links {
+        source
+        target
+        roles
+      }
+    }
+  }
+}

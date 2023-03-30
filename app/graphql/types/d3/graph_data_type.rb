@@ -11,6 +11,5 @@ module Types
     def links
       object[:links]
     end
-    
   end
 end

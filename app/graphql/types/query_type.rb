@@ -15,6 +15,16 @@ module Types
       argument :ids, String
     end
 
+    field :saveGraph, Types::D3::ResponseType, null: true do
+      argument :ids, String
+      argument :counts, [Integer]
+      argument :key, String
+    end
+
+    field :findBySlug, Types::D3::SlugGraph, null: true do
+      argument :slug, String
+    end
+
     def search(args)
       return [] unless accepted_key(args[:key])
       results = TmdbService.search(args[:term])[:results]
@@ -30,22 +40,64 @@ module Types
     def graphData(args)
       return [] unless accepted_key(args[:key])
       response = assemble_graph_data(args)
-
-      existing = SavedGraph.find_by(request_ids: args[:ids])
-
-      if existing.nil?
-        SavedGraph.create!(
-          request_ids: args[:ids],
-          body: response
-        )
-        return response
-      else
-        return existing.data
-      end
+      return response
     end
     
-    private
+    def saveGraph(args)
+      anchorsList = args[:ids].split(",").zip(args[:counts])
+      savedGraph = SavedGraph.find_by(request_ids: args[:ids])
+      
+      if savedGraph.present?
+        response = {
+          status: 403,
+          msg: "resource already exists",
+          resource_id: savedGraph.id,
+          resource_slug: savedGraph.slug
+        }
+      else
+        assembled_data = assemble_graph_data(args)
+        uuid = SecureRandom.uuid.split('-').first
+
+        sg = SavedGraph.new(
+          slug: uuid,
+          request_ids: args[:ids],
+          body: assembled_data,
+          existing: anchorsList
+        )
+
+        if sg.save!
+          response = {
+            status: 201,
+            msg: "saved",
+            resource_id: savedGraph.id,
+            resource_slug: savedGraph.slug
+          }
+        else
+          response = {
+            status: 403,
+            msg: "couldn't save",
+            resource_id: '',
+            resource_slug: ''
+            # include error msg
+          }
+        end
+      end
+
+      return response
+    end
     
+    def findBySlug(args)
+      result = SavedGraph.find_by(slug: args[:slug])
+
+      if result.present?
+        # create?... no that wouldn't work. Slugs are for sharing lol.
+        return result
+      end
+      return []
+    end
+
+    private
+
     def accepted_key(key)
       Rails.env.production? ? key === "6GzCesnexrzgnDv3FfxbHBrb" : true
     end
