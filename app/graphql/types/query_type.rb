@@ -52,7 +52,7 @@ module Types
           status: 403,
           msg: "resource already exists",
           resource_id: savedGraph.id,
-          resource_slug: savedGraph.slug
+          share_url: savedGraph.filmetrix_link
         }
       else
         assembled_data = assemble_graph_data(args)
@@ -70,7 +70,7 @@ module Types
             status: 201,
             msg: "saved",
             resource_id: sg.id,
-            resource_slug: sg.slug
+            share_url: sg.filmetrix_link
           }
         else
           # If somebody tries to save an already existing graph,
@@ -79,7 +79,7 @@ module Types
             status: 403,
             msg: "couldn't save",
             resource_id: '',
-            resource_slug: ''
+            share_url: ''
             # include error msg
           }
         end

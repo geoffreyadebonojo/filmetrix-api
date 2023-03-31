@@ -5,6 +5,6 @@ module Types
     field :status, Integer, null: false
     field :msg, String, null: false
     field :resource_id, String, null: true
-    field :resource_slug, String, null: true
+    field :share_url, String, null: true
   end
 end

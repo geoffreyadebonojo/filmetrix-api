@@ -4,10 +4,10 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  saveGraph(ids:"person-500,person-287,person-192",counts:[7,12,20] key:"6GzCesnexrzgnDv3FfxbHBrb") {
+  saveGraph(ids:"person-287,person-192",counts:"7,12") {
     status
     msg
     resourceId
-    resourceSlug
+    shareUrl
   }
 }
