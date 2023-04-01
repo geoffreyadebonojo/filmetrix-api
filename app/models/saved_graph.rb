@@ -1,5 +1,5 @@
 class SavedGraph < ApplicationRecord
-  validates_uniqueness_of :request_ids, :slug
+  validates_uniqueness_of :existing, :slug
 
   def filmetrix_link
     if Rails.env.production?

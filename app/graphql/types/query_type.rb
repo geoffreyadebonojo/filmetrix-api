@@ -45,7 +45,7 @@ module Types
     
     def saveGraph(args)
       anchorsList = args[:ids].split(",").zip(args[:counts].split(","))      
-      savedGraph = SavedGraph.find_by(request_ids: args[:ids])
+      savedGraph = SavedGraph.find_by(existing: anchorsList)
       
       if savedGraph.present?
         response = {
