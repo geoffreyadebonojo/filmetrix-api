@@ -18,12 +18,14 @@ class TmdbService
 
 	def self.details(id)
 		entity, id_number = id.split("-")
-		if %w(person movie tv).exclude?(entity)
+		
+		if %w(filmetrix geoff pierce).include?(entity)
+			return Detail.find(entity)
+		elsif %w(person movie tv).exclude?(entity)
 			raise "can't search for entity='#{entity}'" 
 		elsif id_number.to_s === 0
 			raise "can't search for id_number='#{id_number}: must be integer'" 
 		else
-
 			existing = Detail.find_by(id: id)
 			return existing if existing.present?
 

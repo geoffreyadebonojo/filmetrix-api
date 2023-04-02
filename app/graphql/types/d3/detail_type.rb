@@ -46,7 +46,9 @@ module Types
     # end
 
     def imdb_id
-      if object[:media_type] == "person"
+      if object[:media_type] == "about"
+        return ''
+      elsif object[:media_type] == "person"
         imdb_root = "https://www.imdb.com/name/"
       else
         imdb_root = "https://www.imdb.com/title/"
@@ -72,6 +74,9 @@ module Types
     end
 
     def poster
+      if object[:media_type] == "about"
+        return object[:poster]
+      end
       poster = object[:profile_path] || object[:poster_path]
       poster.nil? ? "" : root+poster || ''
     end
