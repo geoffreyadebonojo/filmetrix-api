@@ -15,6 +15,10 @@ gem "json"
 gem "graphql"
 gem 'dotenv-rails'
 
+gem 'devise'
+gem 'devise-jwt'
+gem 'jsonapi-serializer'
+
 group :development, :test do
   gem "pry"
   gem "rspec-rails"
