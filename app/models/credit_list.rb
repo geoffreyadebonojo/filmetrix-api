@@ -1,8 +1,10 @@
 class CreditList < ApplicationRecord
 	
-		def write
-			File.write("db/seeds/#{id}/credit-list.json", data.to_json)
-		end
+	has_one :movie
+
+	def write
+		File.write("db/seeds/#{id}/credit-list.json", data.to_json)
+	end
 
 	# should be the default?
 

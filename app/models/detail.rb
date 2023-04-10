@@ -1,4 +1,5 @@
 class Detail < ApplicationRecord
+  has_one :movie
   
 	def write
 		File.write("db/seeds/#{id}/details.json", data.to_json)
