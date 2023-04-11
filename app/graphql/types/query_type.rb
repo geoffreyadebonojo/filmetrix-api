@@ -25,6 +25,10 @@ module Types
       argument :slug, String
     end
 
+    field :movieList, [[String]], null: true do
+      argument :user_id, String
+    end
+
     def search(args)
       return [] unless accepted_key(args[:key])
       results = TmdbService.search(args[:term])[:results]
@@ -96,6 +100,10 @@ module Types
         return result
       end
       return []
+    end
+
+    def movieList(args)
+      return User.find(args[:user_id]).movies.pluck(:_id, :title, :poster)
     end
 
     private
