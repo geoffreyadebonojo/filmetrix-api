@@ -4,7 +4,8 @@ class User < ApplicationRecord
   has_many :user_saved_graphs
   has_many :saved_graphs, through: :user_saved_graphs
 
-  has_many :movies
+  has_many :user_movies
+  has_many :movies, through: :user_movies
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable

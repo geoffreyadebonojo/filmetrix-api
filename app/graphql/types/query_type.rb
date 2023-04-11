@@ -25,8 +25,18 @@ module Types
       argument :slug, String
     end
 
-    field :movieList, [[String]], null: true do
+    field :fetchMovieList, [[String]], null: true do
       argument :user_id, String
+    end
+
+    field :addToMovieList, [[String]], null: true do
+      argument :user_id, String
+      argument :movie_id, String
+    end
+
+    field :removeFromMovieList, [[String]], null: true do
+      argument :user_id, String
+      argument :movie_id, String
     end
 
     def search(args)
@@ -102,8 +112,50 @@ module Types
       return []
     end
 
-    def movieList(args)
+    def fetchMovieList(args)
       return User.find(args[:user_id]).movies.pluck(:_id, :title, :poster)
+    end
+
+    def addToMovieList(args)
+      user = User.find(args[:user_id])
+      movie = Movie.find_by(_id: args[:movie_id])
+
+      if movie.nil?
+        detail = Detail.find(args[:movie_id])
+        credit_list = CreditList.find(args[:movie_id])
+        
+        if detail.present?
+          new_movie = Movie.create!({
+            _id: args[:movie_id],
+            title: detail.data[:title],
+            poster: detail.data[:poster_path]
+          })
+
+          new_movie.detail = detail
+          new_movie.credit_list = credit_list
+
+          user.movies << new_movie
+        else
+          raise "--> Hey, something's up; couldn't find existing Detail?"
+        end
+      elsif movie.present?
+        if user.movies.find_by(_id: args[:movie_id]).nil?
+          user.movies << movie
+        end
+      end
+
+      return user.movies.pluck(:_id, :title, :poster)
+    end
+
+    def removeFromMovieList(args)
+      user = User.find(args[:user_id])
+      movie = Movie.find_by(_id: args[:movie_id])
+
+      user_movie = UserMovie.where(user: user, movie: movie)
+      puts "UserMovie not found?? How???" if user_movie.empty?
+      
+      user_movie.destroy_all
+      return user.movies.pluck(:_id, :title, :poster)
     end
 
     private
@@ -141,6 +193,10 @@ module Types
           TmdbService.credits(id).grouped_credits
         end
       rescue
+        puts "============================="
+        puts "=>> FETCHED FROM IMDB API <<="
+        puts "============================="
+
         TmdbService.credits(id).grouped_credits
       end
     end

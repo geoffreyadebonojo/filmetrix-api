@@ -4,5 +4,5 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  fetchMovieList(userId:"3")
+  addToMovieList(userId:"3",movieId:"movie-345")
 }
