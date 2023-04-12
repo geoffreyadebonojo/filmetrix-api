@@ -18,7 +18,6 @@ module Types
     field :saveGraph, Types::D3::ResponseType, null: true do
       argument :ids, String
       argument :counts, String
-      # argument :key, String
     end
 
     field :findBySlug, Types::D3::SlugGraph, null: true do
@@ -113,7 +112,8 @@ module Types
     end
 
     def fetchMovieList(args)
-      return User.find(args[:user_id]).movies.pluck(:_id, :title, :poster)
+      movie_list = User.find(args[:user_id]).movies.pluck(:_id, :title, :poster)
+      return movie_list
     end
 
     def addToMovieList(args)
@@ -151,7 +151,8 @@ module Types
       user = User.find(args[:user_id])
       movie = Movie.find_by(_id: args[:movie_id])
 
-      user_movie = UserMovie.where(user: user, movie: movie)
+      user_movie = UserMovie.where(user: user).where(movie: movie)
+
       puts "UserMovie not found?? How???" if user_movie.empty?
       
       user_movie.destroy_all
