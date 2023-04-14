@@ -11,4 +11,11 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
+
+
+  # TODO:
+  # add username
+  # store robothash to preserve profile image even if username is reset
+  # also add option to regenerate another robot profile image
+  # faker to auto-generate username
 end

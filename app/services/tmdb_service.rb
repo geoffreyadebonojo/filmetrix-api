@@ -19,9 +19,7 @@ class TmdbService
 	def self.details(id)
 		entity, id_number = id.split("-")
 		
-		if %w(filmetrix geoff pierce).include?(entity)
-			return Detail.find(entity)
-		elsif %w(person movie tv).exclude?(entity)
+		if %w(person movie tv).exclude?(entity)
 			raise "can't search for entity='#{entity}'" 
 		elsif id_number.to_s === 0
 			raise "can't search for id_number='#{id_number}: must be integer'" 
@@ -34,7 +32,7 @@ class TmdbService
 			body = JSON.parse(response.body)
 			body["media_type"] = entity
 			
-			details = Detail.create!(
+			details = Detail.create(
 				id: id,
 				body: body
 			)
@@ -56,7 +54,7 @@ class TmdbService
 			response = Faraday.get url
 			body = JSON.parse(response.body)
 
-			credits_list = CreditList.create!({
+			credits_list = CreditList.create({
 				id: id,
 				body: body
 			})

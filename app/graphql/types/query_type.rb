@@ -190,7 +190,7 @@ module Types
 
     def check_credit_cache(id)
       begin 
-        Rails.cache.fetch("credits--#{id}") do
+        Rails.cache.fetch("#{id}--credits") do
           TmdbService.credits(id).grouped_credits
         end
       rescue
@@ -204,19 +204,12 @@ module Types
 
     def check_detail_cache(id)
       begin 
-        Rails.cache.fetch("details--#{id}") do
+        Rails.cache.fetch("#{id}--detail") do
           TmdbService.details(id)
         end
       rescue
         TmdbService.details(id)
       end
     end
-
-    # def update_graph_store(id, list)
-    #   existing = Rails.cache.fetch(id) {[]}
-    #   if existing.map{|x|x[:id]}.sort != list.map{|y|y[:id]}.sort
-    #     Rails.cache.write(id, list)
-    #   end
-    # end
   end
 end
