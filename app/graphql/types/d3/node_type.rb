@@ -7,6 +7,8 @@ module Types
     field :poster, String
     field :type, [String]
     field :entity, String
+    field :year, String
+    field :known_for_department, String
 
     def id
       object[:id]
@@ -15,20 +17,27 @@ module Types
     def name
       object[:name]
     end
-
-    # add placeholder poster here? 
-
+    
     def poster
       poster = object[:poster]
       poster.nil? ? "" : root+poster
     end
-
+    
     def type
       object[:type]
     end
-
+    
     def entity
-      object[:entity]
+      # object[:entity]
+      object[:id].split("-")[0]
+    end
+
+    def year
+      object[:year]
+    end
+
+    def known_for_deparment
+      object[:known_for_deparment]
     end
 
     def root

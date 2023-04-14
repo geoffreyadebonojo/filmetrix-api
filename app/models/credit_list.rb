@@ -14,7 +14,7 @@ class CreditList < ApplicationRecord
     elsif self.id.include?("movie")
       constructor = GeneratePersonFromMovieCredits
     elsif self.id.include?("tv")
-      raise "not set up yet"
+			constructor = GeneratePersonFromTvCredits
     else
       raise "the id is fucked up?"
     end
@@ -149,6 +149,34 @@ class CreditList < ApplicationRecord
 				media_type: "person",
 				roles: r,
 				departments: d,
+				id: "person-#{group.first[:id]}",
+				poster: group.first[:profile_path]
+			)
+			person
+		end
+	end
+
+	GeneratePersonFromTvCredits = Struct.new(:entry) do
+		def node
+			group = entry[1]
+
+			r = group.map{ |x|
+				roles = x[:job] || x[:character]
+			}.reject{|y|y.empty?}.uniq
+
+			d = group.map{ |x|
+				departments = x[:department] 
+			}.reject{|y|y.nil?}.uniq
+
+			person = group.first.slice(
+				:name,
+				:popularity,
+				:order
+			)
+			person.merge!(
+				media_type: "person",
+				roles: r,
+				departments: [],
 				id: "person-#{group.first[:id]}",
 				poster: group.first[:profile_path]
 			)

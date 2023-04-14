@@ -46,15 +46,15 @@ module Types
     # end
 
     def imdb_id
-      if object[:media_type] == "about"
-        return ''
-      elsif object[:media_type] == "person"
+      if object[:media_type] == "person"
         imdb_root = "https://www.imdb.com/name/"
       else
         imdb_root = "https://www.imdb.com/title/"
       end
 
-      imdb_root + object[:imdb_id] || ''
+      return '' if object[:imdb_id].nil?
+
+      imdb_root + object[:imdb_id]
     end
 
     def name

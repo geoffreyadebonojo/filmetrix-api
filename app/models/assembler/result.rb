@@ -12,6 +12,7 @@ class Assembler::Result
     items = []
     results.each do |r|
       if r[:media_type] == "person"
+        # binding.pry
         items << person_entity(r)
         r[:known_for].each do |m|
           items << media_entity(m)
@@ -20,7 +21,6 @@ class Assembler::Result
         items << media_entity(r)
       end
     end
-
     items
   end
 
@@ -30,6 +30,9 @@ class Assembler::Result
     node.id =[item[:media_type],item[:id]].join("-")
     node.name = item[:title] || item[:original_name]
     node.poster = item[:poster_path]
+    node.year = item[:release_date].split("-")[0] if !item[:release_date].nil?
+    node.year = item[:first_air_date].split("-")[0] if !item[:first_air_date].nil?
+    node.known_for_department = []
     node
   end
 
@@ -39,6 +42,8 @@ class Assembler::Result
     node.id = [item[:media_type],item[:id]].join("-")
     node.name = item[:name]
     node.poster = item[:profile_path]
+    node.year = ''
+    node.known_for_department = item[:known_for_department]
     node
   end
 end

@@ -3,7 +3,6 @@
 module Types
   class D3::LinkType < Types::BaseObject
     field :id, ID
-
     field :source, String
     field :target, String
     field :roles, [String]

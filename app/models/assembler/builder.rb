@@ -77,10 +77,12 @@ class Assembler::Builder
   end
 
   def define_anchor
-    assembled = { id: id, 
+    assembled = { 
+      id: id, 
       name: anchor[:name] || anchor[:title], 
       poster: anchor[:profile_path] || anchor[:poster_path],
-      entity: anchor[:media_type] }
+      entity: anchor[:media_type] 
+    }
     
     if anchor[:media_type] == "person"
       assembled[:type] = [anchor[:known_for_department].downcase]
