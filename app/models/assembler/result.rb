@@ -32,10 +32,15 @@ class Assembler::Result
     node.poster = item[:poster_path]
     node.year = item[:release_date].split("-")[0] if !item[:release_date].nil?
     node.year = item[:first_air_date].split("-")[0] if !item[:first_air_date].nil?
+    # node.score = {
+    #   popularity: item[:popularity],
+    #   vote_average: item[:vote_average],
+    #   vote_count: item[:vote_count]
+    # }
     node.known_for_department = []
     node
   end
-
+  
   def person_entity(item)
     node = OpenStruct.new
     node.media_type = item[:media_type]
@@ -43,6 +48,9 @@ class Assembler::Result
     node.name = item[:name]
     node.poster = item[:profile_path]
     node.year = ''
+    # node.score = {
+    #   popularity: item[:popularity]
+    # }
     node.known_for_department = item[:known_for_department]
     node
   end

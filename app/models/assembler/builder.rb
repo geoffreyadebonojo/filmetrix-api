@@ -23,20 +23,31 @@ class Assembler::Builder
     }
   end
 
+  ############ CREATE STRUCTS
+
   def assemble_inner_nodes
     @inner_nodes << filtered.map do |li|
       obj = { id: li[:id],
               name: li[:name],
               poster: li[:poster],
-              type: li[:type] }
-
+              type: li[:type],
+            }
+            
       if li[:media_type] == "person"
         obj[:type] = li[:departments].map{|x|x.gsub('\u0026', "&").downcase}
+        obj[:score] = {
+          popularity: li[:popularity]
+        }
       else
         obj[:type] = li[:genre_ids].map{|x|genre_name(x)}
+        obj[:score] = {
+          popularity: li[:popularity],
+          vote_average: li[:vote_average],
+          vote_count: li[:vote_count]
+        }
       end
-      obj[:entity] = li[:media_type]
 
+      obj[:entity] = li[:media_type]
       obj
     end.flatten
   end
@@ -58,6 +69,8 @@ class Assembler::Builder
       end
     end
   end
+
+  ##################################
 
   def filtered
     if anchor[:media_type] != "person"
@@ -81,13 +94,21 @@ class Assembler::Builder
       id: id, 
       name: anchor[:name] || anchor[:title], 
       poster: anchor[:profile_path] || anchor[:poster_path],
-      entity: anchor[:media_type] 
+      entity: anchor[:media_type]
     }
     
     if anchor[:media_type] == "person"
       assembled[:type] = [anchor[:known_for_department].downcase]
+      assembled[:score] = {
+        popularity: anchor[:popularity]
+      }
     else
       assembled[:type] = anchor[:genres].map{|x|genre_name(x[:id])}
+      assembled[:score] = {
+        popularity: anchor[:popularity],
+        vote_average: anchor[:vote_average],
+        vote_count: anchor[:vote_count]
+      }
     end
 
     @inner_nodes << assembled

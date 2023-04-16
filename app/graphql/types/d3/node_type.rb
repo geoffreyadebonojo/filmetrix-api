@@ -2,13 +2,21 @@
 
 module Types
   class D3::NodeType < Types::BaseObject
+    field :entity, String
     field :id, String
     field :name, String
     field :poster, String
     field :type, [String]
-    field :entity, String
     field :year, String
+    field :popularity, Float
+    field :vote_count, Integer
+    field :vote_average, Float
     field :known_for_department, String
+
+    def entity
+      # object[:entity]
+      object[:id].split("-")[0]
+    end
 
     def id
       object[:id]
@@ -26,14 +34,23 @@ module Types
     def type
       object[:type]
     end
-    
-    def entity
-      # object[:entity]
-      object[:id].split("-")[0]
-    end
+
+    ##########
 
     def year
       object[:year]
+    end
+
+    def popularity
+      object[:score].fetch(:popularity)
+    end
+    
+    def vote_average
+      object[:score].fetch(:vote_average, 0)
+    end
+
+    def vote_count
+      object[:score].fetch(:vote_count, 0)
     end
 
     def known_for_deparment

@@ -173,8 +173,10 @@ module Types
         credits = check_credit_cache(id)
         credit_list << credits
         details = check_detail_cache(id)
-        { anchor: details,
-          credits: credits }
+        { 
+          anchor: details,
+          credits: credits
+        }
       end
 
       all.each do |entity|
