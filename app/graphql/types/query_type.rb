@@ -18,13 +18,18 @@ module Types
     field :saveGraph, Types::D3::ResponseType, null: true do
       argument :ids, String
       argument :counts, String
+      argument :user_id, String
     end
 
-    field :findBySlug, Types::D3::SlugGraph, null: true do
+    field :findBySlug, Types::D3::SlugGraphType, null: true do
       argument :slug, String
     end
 
     field :fetchMovieList, [[String]], null: true do
+      argument :user_id, String
+    end
+
+    field :fetchGraphList, [Types::D3::SavedGraphType], null: true do
       argument :user_id, String
     end
 
@@ -37,6 +42,10 @@ module Types
       argument :user_id, String
       argument :movie_id, String
     end
+
+
+    # create a UserType to package up graphs and movielists
+
 
     def search(args)
       return [] unless accepted_key(args[:key])
@@ -55,47 +64,49 @@ module Types
       response = assemble_graph_data(args)
       return response
     end
-    
+
     def saveGraph(args)
       anchorsList = args[:ids].split(",").zip(args[:counts].split(","))      
-      savedGraph = SavedGraph.find_by(existing: anchorsList)
-      
-      if savedGraph.present?
-        response = {
-          status: 403,
-          msg: "resource already exists",
-          resource_id: savedGraph.id,
-          share_url: savedGraph.filmetrix_link
-        }
+      saved_graph = SavedGraph.find_by(existing: anchorsList)
+      user = User.find_by(id: args[:user_id])
+
+      if saved_graph.present?
+        usg = user.saved_graphs.find_by(id: saved_graph.id) 
+        if usg.present?
+          # return existing graph
+          response = {
+            status: 201,
+            msg: "existing user graph found",
+            resource_id: saved_graph.id,
+            share_url: saved_graph.filmetrix_link
+          }
+        else
+          user.saved_graphs << saved_graph
+          # add existing graph to user, return new
+          response = {
+            status: 201,
+            msg: "existing graph added to user",
+            resource_id: saved_graph.id,
+            share_url: saved_graph.filmetrix_link
+          }
+        end
       else
         assembled_data = assemble_graph_data(args)
         uuid = SecureRandom.uuid.split('-').first
-
         sg = SavedGraph.new(
           slug: uuid,
           request_ids: args[:ids],
           body: assembled_data,
           existing: anchorsList
         )
-
-        if sg.save!
-          response = {
-            status: 201,
-            msg: "saved",
-            resource_id: sg.id,
-            share_url: sg.filmetrix_link
-          }
-        else
-          # If somebody tries to save an already existing graph,
-          # create a usergraph for them
-          response = {
-            status: 403,
-            msg: "couldn't save",
-            resource_id: '',
-            share_url: ''
-            # include error msg
-          }
-        end
+        user.saved_graphs << sg
+        # create new graph, add to user, return new graph
+        response = {
+          status: 201,
+          msg: "graph created and saved to user",
+          resource_id: sg.id,
+          share_url: sg.filmetrix_link
+        }
       end
 
       return response
@@ -103,12 +114,38 @@ module Types
     
     def findBySlug(args)
       result = SavedGraph.find_by(slug: args[:slug])
-
       if result.present?
         # create?... no that wouldn't work. Slugs are for sharing lol.
         return result
       end
       return []
+    end
+
+    def fetchGraphList(args)
+      graphs_lists = User.find(args[:user_id]).saved_graphs
+
+      gathered_ids = graphs_lists.map do |g|
+        {
+          slug: g.slug,
+          list: g.data.map{|x|x[:id]}
+        }
+      end
+
+      graph_list_posters = gathered_ids.map do |graph_list_hash|
+        posters = graph_list_hash[:list].map do |id|
+          profile = Detail.find(id).data.fetch(:profile_path, nil)
+          poster = Detail.find(id).data.fetch(:poster_path, nil)
+          img = profile || poster
+          'https://image.tmdb.org/t/p/w185_and_h278_bestv2' + img
+        end
+
+        {
+          slug: graph_list_hash[:slug],
+          posters: posters
+        }
+      end
+
+      return graph_list_posters
     end
 
     def fetchMovieList(args)

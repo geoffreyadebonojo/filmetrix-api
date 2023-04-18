@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Types
-  class D3::SlugGraph < Types::BaseObject
+  class D3::SlugGraphType < Types::BaseObject
     field :existing, [[String]]
     field :data, [Types::D3::GraphEntityType]
 

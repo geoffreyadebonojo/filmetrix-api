@@ -4,7 +4,7 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  saveGraph(ids:"person-287,person-192",counts:"7,12") {
+  saveGraph(ids:"person-287,person-500",counts:"12,12",userId:"3") {
     status
     msg
     resourceId
