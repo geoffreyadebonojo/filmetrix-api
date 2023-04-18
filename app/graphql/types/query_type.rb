@@ -66,64 +66,27 @@ module Types
     end
 
     def saveGraph(args)
-      anchorsList = args[:ids].split(",").zip(args[:counts].split(","))      
-      saved_graph = SavedGraph.find_by(existing: anchorsList)
+      saved_graph = find_or_create(args)
       user = User.find_by(id: args[:user_id])
 
-      if saved_graph.present?
-        usg = user.saved_graphs.find_by(id: saved_graph.id) 
-        if usg.present?
-          # return existing graph
-          response = {
-            status: 201,
-            msg: "existing user graph found",
-            resource_id: saved_graph.id,
-            share_url: saved_graph.filmetrix_link
-          }
-        else
-          user.saved_graphs << saved_graph
-          # add existing graph to user, return new
-          response = {
-            status: 201,
-            msg: "existing graph added to user",
-            resource_id: saved_graph.id,
-            share_url: saved_graph.filmetrix_link
-          }
-        end
-      else
-        assembled_data = assemble_graph_data(args)
-        uuid = SecureRandom.uuid.split('-').first
-        sg = SavedGraph.new(
-          slug: uuid,
-          request_ids: args[:ids],
-          body: assembled_data,
-          existing: anchorsList
-        )
-        user.saved_graphs << sg
-        # create new graph, add to user, return new graph
-        response = {
-          status: 201,
-          msg: "graph created and saved to user",
-          resource_id: sg.id,
-          share_url: sg.filmetrix_link
-        }
+      if user.present? && !user.saved_graphs.pluck(:slug).include?(saved_graph.slug)
+        user.saved_graphs << saved_graph
       end
 
-      return response
+      return {
+        resource_id: saved_graph.id,
+        share_url: saved_graph.filmetrix_link
+      }      
     end
     
     def findBySlug(args)
       result = SavedGraph.find_by(slug: args[:slug])
-      if result.present?
-        # create?... no that wouldn't work. Slugs are for sharing lol.
-        return result
-      end
+      return result if result.present? 
       return []
     end
 
     def fetchGraphList(args)
       graphs_lists = User.find(args[:user_id]).saved_graphs
-
       gathered_ids = graphs_lists.map do |g|
         {
           slug: g.slug,
@@ -250,5 +213,31 @@ module Types
         TmdbService.details(id)
       end
     end
+
+    # def check_saved_graphs(user_id) 
+    #   begin 
+    #     Rails.cache.fetch("saved_graphs--#{user_id}") do
+          
+    #     end
+    #   rescue
+
+    #   end
+    # end
+
+        
+    def find_or_create(args)
+      anchors_list = args[:ids].split(",").zip(args[:counts].split(","))      
+
+      saved_graph = SavedGraph.find_by(existing: anchors_list)
+      return saved_graph if saved_graph.present?
+
+      SavedGraph.create(
+        slug: SecureRandom.uuid.split('-').first,
+        request_ids: args[:ids],
+        body: assemble_graph_data(args),
+        existing: anchors_list
+      )
+    end
+
   end
 end
