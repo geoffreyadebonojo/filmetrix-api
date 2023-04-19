@@ -6,6 +6,7 @@ module Types
     # field :also_known_as, [String]
     field :summary, String
     field :year, String
+    field :entity, String
     # field :deathday, String
     # field :homepage, String
     field :imdb_id, String
@@ -35,6 +36,9 @@ module Types
       Date.parse(date).year
     end
 
+    def entity
+      object[:media_type]
+    end
     # def deathday
     #   if object[:deathday].present?
     #     Date.parse(object[:deathday]).year
