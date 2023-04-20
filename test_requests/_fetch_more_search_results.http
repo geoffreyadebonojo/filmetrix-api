@@ -5,15 +5,12 @@ X-REQUEST-TYPE: GraphQL
 Access-Control-Allow-Origin: '*
 
 query {
-  search(term:"STAR TREK", key:"6GzCesnexrzgnDv3FfxbHBrb") {
+  getNextPage(term:"STAR TREK") {
     id            
     name         
     poster
     entity
     type
-    popularity
-    voteAverage
-    voteCount
     knownForDepartment
   }    
 }

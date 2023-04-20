@@ -44,8 +44,17 @@ module Types
     end
 
 
+    field :getNextPage, [Types::D3::NodeType], null: true do
+      argument :term, String
+    end
+
     # create a UserType to package up graphs and movielists
 
+    def getNextPage(args) 
+      results = TmdbService.get_next_page(args[:term])
+      return [] if results.empty?
+      Assembler::Result.new(results).nodes    
+    end
 
     def search(args)
       return [] unless accepted_key(args[:key])

@@ -1,19 +1,51 @@
 class TmdbService		
+
 	def self.search(term)
 		existing = Search.where('term LIKE ?', "%#{term.upcase.gsub(" ", "%")}%")
-		return existing.first.data if existing.present?
+
+		# prefer if has any result
+		if existing.present?
+			results = existing.map{|x|x.data[:results]}.flatten
+		end
+
+		return {results: results}
 		
-		url = root + "/search/multi?" + key + query(term)
+		url = root + "/search/multi?" + key + query(term, 1)
 		response = Faraday.get url
 		body = JSON.parse(response.body)
 		return [] if body["total_results"] == 0
 
-		search = Search.create!(
+		search = Search.create(
 			term: term,
 			body: body
 		)
 
-		return search.data
+		return {result: search.data}
+	end
+
+	def self.get_next_page(term)
+		# must always exist
+		latest_search = Search.where('term LIKE ?', "%#{term.upcase.gsub(" ", "%")}%")
+
+		existing = latest_search.max{|x| x.data[:page]}
+		# where page is highest
+
+		current_number = existing.data[:page]
+		total_pages = existing.data[:total_pages]
+		
+		return if current_number == total_pages
+
+		url_for_next_page = root + "/search/multi?" + key + query(existing.term, current_number+1)
+		response = Faraday.get url_for_next_page
+		next_page_body = JSON.parse(response.body)
+		# return [] if body["total_results"] == 0
+
+		new_search = Search.create(
+			term: term,
+			body: next_page_body
+		)
+
+		return new_search.data
 	end
 
 	def self.details(id)
@@ -65,9 +97,9 @@ class TmdbService
 
 	private
 	
-	def self.query(term)
+	def self.query(term, page_number=1)
 		cleaned = term.downcase
-		"&language=en-US&query=#{cleaned}&page=1&include_adult=false"
+		"&language=en-US&query=#{cleaned}&page=#{page_number}&include_adult=false"
 	end
 
 	def self.root
