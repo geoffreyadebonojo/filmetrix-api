@@ -3,13 +3,14 @@ class TmdbService
 	def self.search(term)
 		existing = Search.where('term LIKE ?', "%#{term.upcase.gsub(" ", "%")}%")
 
-		# prefer if has any result
 		if existing.present?
-			results = existing.map{|x|x.data[:results]}.flatten
+			results = existing.map{|x|
+				x.data[:results]
+			}.flatten
+			
+			return {results: results}
 		end
 
-		return {results: results}
-		
 		url = root + "/search/multi?" + key + query(term, 1)
 		response = Faraday.get url
 		body = JSON.parse(response.body)
@@ -20,7 +21,7 @@ class TmdbService
 			body: body
 		)
 
-		return {result: search.data}
+		return search.data
 	end
 
 	def self.get_next_page(term)

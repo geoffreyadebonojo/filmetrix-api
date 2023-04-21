@@ -12,7 +12,6 @@ class Assembler::Result
     items = []
     results.each do |r|
       if r[:media_type] == "person"
-        # binding.pry
         items << person_entity(r)
         r[:known_for].each do |m|
           items << media_entity(m)

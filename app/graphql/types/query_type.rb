@@ -52,6 +52,7 @@ module Types
 
     def getNextPage(args) 
       results = TmdbService.get_next_page(args[:term])
+      return [] if results.nil?
       return [] if results.empty?
       Assembler::Result.new(results).nodes    
     end
@@ -59,6 +60,7 @@ module Types
     def search(args)
       return [] unless accepted_key(args[:key])
       results = TmdbService.search(args[:term])[:results]
+      return [] if results.nil?
       return [] if results.empty?
       Assembler::Result.new(results).nodes
     end

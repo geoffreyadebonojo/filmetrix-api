@@ -5,7 +5,7 @@ X-REQUEST-TYPE: GraphQL
 Access-Control-Allow-Origin: '*
 
 query {
-  search(term:"STAR TREK", key:"6GzCesnexrzgnDv3FfxbHBrb") {
+  search(term:"SE7EN", key:"6GzCesnexrzgnDv3FfxbHBrb") {
     id            
     name         
     poster
