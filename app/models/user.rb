@@ -18,4 +18,10 @@ class User < ApplicationRecord
   # store robothash to preserve profile image even if username is reset
   # also add option to regenerate another robot profile image
   # faker to auto-generate username
+
+  before_save :generate_profile_img
+
+  def generate_profile_img
+    self.profile_img = "https://robohash.org/#{self.email}.png?set=set3"
+  end
 end
