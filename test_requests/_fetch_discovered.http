@@ -1,0 +1,16 @@
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL
+
+query {
+  discover(terms:"terms") {
+    id
+    name
+    poster
+    type
+    entity
+  }
+}
+
+

@@ -50,11 +50,21 @@ module Types
 
     # create a UserType to package up graphs and movielists
 
+    field :discover, [Types::D3::NodeType], null: true do
+      argument :terms, String
+    end
+
+    def discover(args)
+      discovered = TmdbService.discover(args[:terms])
+
+      return discovered
+    end
+
     def getNextPage(args) 
       results = TmdbService.get_next_page(args[:term])
       return [] if results.nil?
       return [] if results.empty?
-      Assembler::Result.new(results).nodes    
+      Assembler::Result.new(results).nodes
     end
 
     def search(args)

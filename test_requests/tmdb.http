@@ -1,0 +1,4 @@
+GET https://api.themoviedb.org/3/movie/74/similar?api_key=a45442ace7db89ca6533dfeb22961976&language=en-US&page=1
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL

@@ -1,5 +1,21 @@
 class TmdbService		
 
+	def self.discover(args)
+		# base = "https://api.themoviedb.org/3/discover/movie?"
+		# certs = "certification=R&certification_country=US"
+		# params = "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate&"
+		# url = base+certs+params+key
+
+		url = "https://api.themoviedb.org/3/movie/74/similar?api_key=a45442ace7db89ca6533dfeb22961976&language=en-US&page=1"
+
+		response = Faraday.get url
+		body = JSON.parse(response.body)
+		return [] if body["total_results"] == 0
+		
+		binding.pry
+	end
+
+
 	def self.search(term)
 		existing = Search.where('term LIKE ?', "%#{term.upcase.gsub(" ", "%")}%")
 
@@ -30,12 +46,12 @@ class TmdbService
 
 		existing = latest_search.max{|x| x.data[:page]}
 		# where page is highest
-
 		current_number = existing.data[:page]
 		total_pages = existing.data[:total_pages]
 		
-		return if current_number == total_pages
-
+		return if latest_search.map{|x| x.data[:page]}.include?(current_number+1)
+		return if current_number >= total_pages
+		
 		url_for_next_page = root + "/search/multi?" + key + query(existing.term, current_number+1)
 		response = Faraday.get url_for_next_page
 		next_page_body = JSON.parse(response.body)
@@ -46,7 +62,7 @@ class TmdbService
 			body: next_page_body
 		)
 
-		return new_search.data
+		return new_search.data[:results]
 	end
 
 	def self.details(id)
