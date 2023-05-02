@@ -11,8 +11,6 @@ class TmdbService
 		response = Faraday.get url
 		body = JSON.parse(response.body)
 		return [] if body["total_results"] == 0
-		
-		binding.pry
 	end
 
 
@@ -55,7 +53,8 @@ class TmdbService
 		url_for_next_page = root + "/search/multi?" + key + query(existing.term, current_number+1)
 		response = Faraday.get url_for_next_page
 		next_page_body = JSON.parse(response.body)
-		# return [] if body["total_results"] == 0
+
+		return [] if next_page_body["total_results"] == 0
 
 		new_search = Search.create(
 			term: term,

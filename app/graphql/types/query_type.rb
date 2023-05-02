@@ -1,17 +1,14 @@
 module Types
   class QueryType < Types::BaseObject
     field :search, [Types::D3::NodeType], null: true do
-      argument :key, String
       argument :term, String
     end
     
     field :details, Types::D3::DetailType, null: true do
-      argument :key, String
       argument :id, String
     end
     
     field :graphData, [Types::D3::GraphEntityType], null: true do
-      argument :key, String
       argument :ids, String
     end
 
@@ -56,32 +53,32 @@ module Types
 
     def discover(args)
       discovered = TmdbService.discover(args[:terms])
-
       return discovered
     end
 
     def getNextPage(args) 
       results = TmdbService.get_next_page(args[:term])
+
       return [] if results.nil?
       return [] if results.empty?
+
       Assembler::Result.new(results).nodes
     end
 
     def search(args)
-      return [] unless accepted_key(args[:key])
-      results = TmdbService.search(args[:term])[:results]
-      return [] if results.nil?
-      return [] if results.empty?
-      Assembler::Result.new(results).nodes
+      api_results = TmdbService.search(args[:term])
+      return [] if api_results.nil?
+      return [] if api_results.empty?
+      
+      search_results = api_results.fetch(:results)
+      Assembler::Result.new(search_results).nodes
     end
 
     def details(args)
-      return [] unless accepted_key(args[:key])
       TmdbService.details(args[:id]).data
     end
 
     def graphData(args)
-      return [] unless accepted_key(args[:key])
       response = assemble_graph_data(args)
       return response
     end
@@ -181,10 +178,6 @@ module Types
     end
 
     private
-
-    def accepted_key(key)
-      Rails.env.production? ? key === "6GzCesnexrzgnDv3FfxbHBrb" : true
-    end
 
     def assemble_graph_data(args)
       credit_list = []
