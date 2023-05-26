@@ -4,7 +4,7 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  graphData(ids: "person-500", key:"6GzCesnexrzgnDv3FfxbHBrb"){
+  graphData(ids: "tv-655", key:"6GzCesnexrzgnDv3FfxbHBrb"){
     nodes {
       id
       name

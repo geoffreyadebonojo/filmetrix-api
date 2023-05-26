@@ -45,7 +45,7 @@ class TmdbService
 		existing = latest_search.max{|x| x.data[:page]}
 		# where page is highest
 		current_number = existing.data[:page]
-		total_pages = existing.data[:total_pages]
+		total_pages =    existing.data[:total_pages]
 		
 		return if latest_search.map{|x| x.data[:page]}.include?(current_number+1)
 		return if current_number >= total_pages
@@ -94,7 +94,6 @@ class TmdbService
 		if %w(person movie tv).exclude?(entity) 
 			raise "#{entity} not an accepted entity type"
 		else
-
 			existing = CreditList.find_by(id: id)
 			return existing if existing.present?
 			
