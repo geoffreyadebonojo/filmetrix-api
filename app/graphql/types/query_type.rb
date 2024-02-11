@@ -51,6 +51,18 @@ module Types
       argument :terms, String
     end
 
+    field :fetchFriendList, [Types::D3::FriendType], null: true do
+      argument :user_id, String
+    end
+
+
+    #####################################################
+
+    def fetchFriendList(args)
+      user = User.find(args[:user_id])
+      return user.users
+    end
+
     def discover(args)
       discovered = TmdbService.discover(args[:terms])
       return discovered
