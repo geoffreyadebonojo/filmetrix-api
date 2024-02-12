@@ -27,4 +27,23 @@ class User < ApplicationRecord
   def generate_profile_img
     self.profile_img = "https://robohash.org/#{self.email}.png?set=set3"
   end
+
+  # def shared_graphs
+  #   friendships.map do |f|
+  #     if f.shared_graphs.present?
+  #       {
+  #         friend_id: f.user_b_id,
+  #         graphs: f.shared_graphs
+  #       }
+  #     end
+  #   end.compact.uniq
+  # end
+
+  def shared_graph_ids
+    friendships.map do |f|
+      if f.shared_graphs.present?
+        f.shared_graphs
+      end
+    end.compact.uniq.flatten
+  end
 end
