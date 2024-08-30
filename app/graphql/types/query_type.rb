@@ -25,9 +25,57 @@ module Types
       argument :slug, String
     end
 
-    def search(args)
-      return [] unless accepted_key(args[:key])
-      results = TmdbService.search(args[:term])[:results]
+    field :fetchMovieList, [[String]], null: true do
+      argument :user_id, String
+    end
+
+    field :fetchGraphList, [Types::D3::SavedGraphType], null: true do
+      argument :user_id, String
+    end
+
+    field :addToMovieList, [[String]], null: true do
+      argument :user_id, String
+      argument :movie_id, String
+    end
+
+    field :removeFromMovieList, [[String]], null: true do
+      argument :user_id, String
+      argument :movie_id, String
+    end
+
+
+    field :getNextPage, [Types::D3::NodeType], null: true do
+      argument :term, String
+    end
+
+    # create a UserType to package up graphs and movielists
+
+    field :discover, [Types::D3::NodeType], null: true do
+      argument :terms, String
+    end
+
+    field :fetchFriendList, [Types::D3::FriendType], null: true do
+      argument :user_id, String
+    end
+
+
+    #####################################################
+
+    def
+       fetchFriendList(args)
+      user = User.find(args[:user_id])
+      return user.users
+    end
+
+    def discover(args)
+      discovered = TmdbService.discover(args[:terms])
+      return discovered
+    end
+
+    def getNextPage(args) 
+      results = TmdbService.get_next_page(args[:term])
+
+      return [] if results.nil?
       return [] if results.empty?
       Assembler::Result.new(results).nodes
     end
@@ -38,9 +86,7 @@ module Types
     end
 
     def graphData(args)
-      return [] unless accepted_key(args[:key])
-      response = assemble_graph_data(args)
-      return response
+      return AssembleGraphData.execute(args)
     end
     
     def saveGraph(args)
@@ -104,54 +150,21 @@ module Types
       Rails.env.production? ? key === "6GzCesnexrzgnDv3FfxbHBrb" : true
     end
 
-    def assemble_graph_data(args)
-      credit_list = []
-      response = []
+    private
+        
+    def find_or_create(args)
+      anchors_list = args[:ids].split(",").zip(args[:counts].split(","))      
 
-      all= args[:ids].split(",").map do |id|
-        credits = check_credit_cache(id)
-        credit_list << credits
-        details = check_detail_cache(id)
-        { anchor: details,
-          credits: credits }
-      end
+      saved_graph = SavedGraph.find_by(existing: anchors_list)
+      return saved_graph if saved_graph.present?
 
-      all.each do |entity|
-        assembler = Assembler::Builder.new(entity)
-        assembler.assemble_credits( Assembler::Matcher.new(credit_list).found_matches )
-        assembler.assemble_inner_links
-        assembler.assemble_inner_nodes
-        response << assembler.assembled_response
-      end
-
-      response
+      SavedGraph.create(
+        slug: SecureRandom.uuid.split('-').first,
+        request_ids: args[:ids],
+        body: assemble_graph_data(args),
+        existing: anchors_list
+      )
     end
 
-    def check_credit_cache(id)
-      begin 
-        Rails.cache.fetch("credits--#{id}") do
-          TmdbService.credits(id).grouped_credits
-        end
-      rescue
-        TmdbService.credits(id).grouped_credits
-      end
-    end
-
-    def check_detail_cache(id)
-      begin 
-        Rails.cache.fetch("details--#{id}") do
-          TmdbService.details(id)
-        end
-      rescue
-        TmdbService.details(id)
-      end
-    end
-
-    # def update_graph_store(id, list)
-    #   existing = Rails.cache.fetch(id) {[]}
-    #   if existing.map{|x|x[:id]}.sort != list.map{|y|y[:id]}.sort
-    #     Rails.cache.write(id, list)
-    #   end
-    # end
   end
 end
