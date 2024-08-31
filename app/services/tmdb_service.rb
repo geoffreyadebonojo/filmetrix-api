@@ -6,13 +6,12 @@ class TmdbService
 		# params = "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate&"
 		# url = base+certs+params+key
 
-		url = "https://api.themoviedb.org/3/movie/74/similar?api_key=a45442ace7db89ca6533dfeb22961976&language=en-US&page=1"
-
+		url = root + "/discover/movie?" + key + "&with_people=" + args
 		response = Faraday.get url
 		body = JSON.parse(response.body)
+		binding.pry
 		return [] if body["total_results"] == 0
 	end
-
 
 	def self.search(term)
 		existing = Search.where('term LIKE ?', "%#{term.upcase.gsub(" ", "%")}%")
@@ -77,6 +76,11 @@ class TmdbService
 
 			url = root + "/#{entity}" + "/#{id_number.to_s}" + "?" + key
 			response = Faraday.get url
+			
+			puts "============================="
+      puts "=>> FETCHED FROM TMDB API <<="
+      puts "============================="
+
 			body = JSON.parse(response.body)
 			body["media_type"] = entity
 			
@@ -99,6 +103,11 @@ class TmdbService
 			
 			url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
 			response = Faraday.get url
+
+			puts "============================="
+      puts "=>> FETCHED FROM TMDB API <<="
+      puts "============================="
+
 			body = JSON.parse(response.body)
 
 			credits_list = CreditList.create({

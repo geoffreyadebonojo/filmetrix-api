@@ -33,10 +33,6 @@ class AssembleGraphData
         TmdbService.credits(id).grouped_credits
       end
     rescue
-      puts "============================="
-      puts "=>> FETCHED FROM TMDB API <<="
-      puts "============================="
-
       TmdbService.credits(id).grouped_credits
     end
   end
@@ -47,10 +43,6 @@ class AssembleGraphData
         TmdbService.details(id)
       end
     rescue
-      puts "============================="
-      puts "=>> FETCHED FROM TMDB API <<="
-      puts "============================="
-
       TmdbService.details(id)
     end
   end

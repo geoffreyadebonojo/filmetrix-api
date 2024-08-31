@@ -16,10 +16,11 @@ RSpec.describe AssembleGraphData, type: :model do
       #fix this
       CreditList.destroy_all
 
-      args = {ids: "person-500,movie-628"}
-      
+      args = {:ids=>"person-500,movie-628", :counts=>"11,8", :user_id=>"null"}
+
       args[:ids].split(",").each do |id|
         credit_list_hash = eval(File.read("spec/#{id}-credits.json").gsub("null", "nil"))
+
         cl = CreditList.create!({ id: id, body: credit_list_hash[:body] })
         Rails.cache.write("#{id}--credits", cl.grouped_credits)
       end

@@ -96,16 +96,30 @@ module Types
 
     def saveGraph(args)
       saved_graph = find_or_create(args)
-      user = User.find_by(id: args[:user_id])
+      # user = User.find_by(id: args[:user_id])
 
-      if user.present? && !user.saved_graphs.pluck(:slug).include?(saved_graph.slug)
-        user.saved_graphs << saved_graph
-      end
+      # if user.present? && !user.saved_graphs.pluck(:slug).include?(saved_graph.slug)
+      #   user.saved_graphs << saved_graph
+      # end
 
       return {
         resource_id: saved_graph.id,
         share_url: saved_graph.filmetrix_link
       }      
+    end
+
+    def find_or_create(args)
+      anchors_list = args[:ids].split(",").zip(args[:counts].split(","))      
+
+      saved_graph = SavedGraph.find_by(existing: anchors_list)
+      return saved_graph if saved_graph.present?
+
+      SavedGraph.create(
+        slug: SecureRandom.uuid.split('-').first,
+        request_ids: args[:ids],
+        body: assemble_graph_data(args),
+        existing: anchors_list
+      )
     end
     
     def findBySlug(args)
@@ -191,73 +205,16 @@ module Types
     private
 
     def assemble_graph_data(args)
-      credit_list = []
-      response = []
+      response = AssembleGraphData.execute(args)
 
-      all= args[:ids].split(",").map do |id|
-        credits = check_credit_cache(id)
-        credit_list << credits
-        details = check_detail_cache(id)
-        { 
-          anchor: details,
-          credits: credits
-        }
-      end
+      anchors_list = args[:ids].split(",").zip(args[:counts].split(","))
 
       saved_graph = SavedGraph.find_by(existing: anchors_list)
+
+      binding.pry
       return saved_graph if saved_graph.present?
 
       response
     end
-
-    def check_credit_cache(id)
-      begin 
-        Rails.cache.fetch("#{id}--credits") do
-          TmdbService.credits(id).grouped_credits
-        end
-      rescue
-        puts "============================="
-        puts "=>> FETCHED FROM IMDB API <<="
-        puts "============================="
-
-        TmdbService.credits(id).grouped_credits
-      end
-    end
-
-    def check_detail_cache(id)
-      begin 
-        Rails.cache.fetch("#{id}--detail") do
-          TmdbService.details(id)
-        end
-      rescue
-        TmdbService.details(id)
-      end
-    end
-
-    # def check_saved_graphs(user_id) 
-    #   begin 
-    #     Rails.cache.fetch("saved_graphs--#{user_id}") do
-          
-    #     end
-    #   rescue
-
-    #   end
-    # end
-
-        
-    def find_or_create(args)
-      anchors_list = args[:ids].split(",").zip(args[:counts].split(","))      
-
-      saved_graph = SavedGraph.find_by(existing: anchors_list)
-      return saved_graph if saved_graph.present?
-
-      SavedGraph.create(
-        slug: SecureRandom.uuid.split('-').first,
-        request_ids: args[:ids],
-        body: assemble_graph_data(args),
-        existing: anchors_list
-      )
-    end
-
   end
 end

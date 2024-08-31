@@ -117,7 +117,7 @@ class Assembler::Builder
   def assemble_credits(credit_list)
     define_anchor
 
-    # File.write("spec/tom-cruise-kevin-hart", credit_list.to_json)
+    File.write("spec/se7en-tom-cruise.json", credit_list.to_json)
     matches = Assembler::Matcher.new(credit_list).found_matches
 
     if anchor[:media_type] == "person"

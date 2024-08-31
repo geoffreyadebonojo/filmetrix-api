@@ -9,4 +9,8 @@ namespace :capture_data do
     data = CreditList.find(args[:id])
     File.write("spec/#{args[:id]}-credits.json", data.to_json)
   end
+
+  task :discover, [:ids] => :environment do |task, args|
+    body = TmdbService.discover("500,287,192")
+  end
 end
