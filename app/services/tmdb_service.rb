@@ -105,7 +105,7 @@ class TmdbService
 				id: id,
 				body: body
 			})
-
+			
 			return credits_list
 		end
 	end

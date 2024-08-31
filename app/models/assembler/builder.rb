@@ -114,9 +114,12 @@ class Assembler::Builder
     @inner_nodes << assembled
   end
 
-  def assemble_credits(matches)
+  def assemble_credits(credit_list)
     define_anchor
-    
+
+    # File.write("spec/tom-cruise-kevin-hart", credit_list.to_json)
+    matches = Assembler::Matcher.new(credit_list).found_matches
+
     if anchor[:media_type] == "person"
       credits.each do |credit|
         if credit[:genre_ids].exclude?(10402) && credit[:genre_ids].exclude?(99) && credit[:genre_ids].present?

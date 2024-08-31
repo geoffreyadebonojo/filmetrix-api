@@ -91,8 +91,7 @@ module Types
     end
 
     def graphData(args)
-      response = assemble_graph_data(args)
-      return response
+      return AssembleGraphData.execute(args)
     end
 
     def saveGraph(args)
@@ -205,13 +204,8 @@ module Types
         }
       end
 
-      all.each do |entity|
-        assembler = Assembler::Builder.new(entity)
-        assembler.assemble_credits( Assembler::Matcher.new(credit_list).found_matches )
-        assembler.assemble_inner_links
-        assembler.assemble_inner_nodes
-        response << assembler.assembled_response
-      end
+      saved_graph = SavedGraph.find_by(existing: anchors_list)
+      return saved_graph if saved_graph.present?
 
       response
     end

@@ -5,6 +5,7 @@ class Assembler::Matcher
     @grouped_credits = grouped_credits
   end
 
+  # find overlapping entries?
   def found_matches
     grouped_credits.flatten(2)
                 .group_by{|x|x[:id]}.to_a
