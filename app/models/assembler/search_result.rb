@@ -1,4 +1,4 @@
-class Assembler::Result
+class Assembler::SearchResult
   attr_reader :nodes, :results
 
   def initialize(results)
@@ -20,6 +20,8 @@ class Assembler::Result
         items << media_entity(r)
       end
     end
+
+    # maybe order items by popularity? Or optional filter?
     items
   end
 
