@@ -1,31 +1,24 @@
 class AssembleGraphData
+  def self.execute(args, options={count:30})
+    @credit_list = []
+    @response = []
 
-  def self.execute(args)
-    credit_list = []
-    response = []
-
-    all= args[:ids].split(",").map do |id|
+    all = args[:ids].split(",").map do |id|
       credits = check_credit_cache(id)
-      credit_list << credits
+      @credit_list << credits
+
       details = check_detail_cache(id)
-      { 
-        anchor: details,
-        credits: credits
-      }
+      
+      { anchor: details,
+        credits: credits }
     end
 
     all.each do |entity|
-      assembler = Assembler::Builder.new(entity)
-      assembler.assemble_credits(credit_list)
-      assembler.assemble_inner_links
-      assembler.assemble_inner_nodes
-      response << assembler.assembled_response
+      @response << Assembler::Builder.new(entity).assembled_response(@credit_list, options)
     end
 
-    response
+    return @response
   end
-
-  private 
 
   def self.check_credit_cache(id)
     begin 

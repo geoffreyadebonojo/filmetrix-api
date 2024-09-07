@@ -29,7 +29,7 @@ class Assembler::SearchResult
     node = OpenStruct.new
     node.media_type = item[:media_type]
     node.id = [item[:media_type], item[:id]].join("-")
-    node.type = item[:genre_ids].map{|x|genre_name(x)}.compact
+    node.type = item[:genre_ids].present? ? item[:genre_ids].map{|x|genre_name(x)}.compact : []
     node.name = item[:title] || item[:original_name]
     node.poster = item[:poster_path]
     node.year = item[:release_date].split("-")[0] if !item[:release_date].nil?

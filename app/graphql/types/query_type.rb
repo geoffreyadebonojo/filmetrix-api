@@ -74,22 +74,25 @@ module Types
       return [] if results.nil?
       return [] if results.empty?
 
-      Assembler::Result.new(results).nodes
+      Assembler::SearchResult.new(results).nodes
     end
 
     def search(args)
       api_results = TmdbService.search(args[:term])
+
       return [] if api_results.nil?
       return [] if api_results.empty?
       
       search_results = api_results.fetch(:results)
-      Assembler::Result.new(search_results).nodes
+
+      Assembler::SearchResult.new(search_results).nodes
     end
 
     def details(args)
       TmdbService.details(args[:id]).data
+      # Retriever.retrieve_data(args[:id], :details)
     end
-
+    
     def graphData(args)
       return AssembleGraphData.execute(args)
     end
@@ -117,7 +120,7 @@ module Types
       SavedGraph.create(
         slug: SecureRandom.uuid.split('-').first,
         request_ids: args[:ids],
-        body: assemble_graph_data(args),
+        body: assemble_graph_data_from_saved(args[:ids]),
         existing: anchors_list
       )
     end
@@ -204,14 +207,11 @@ module Types
 
     private
 
-    def assemble_graph_data(args)
+    def assemble_graph_data_from_saved(args)
       response = AssembleGraphData.execute(args)
-
       anchors_list = args[:ids].split(",").zip(args[:counts].split(","))
-
       saved_graph = SavedGraph.find_by(existing: anchors_list)
 
-      binding.pry
       return saved_graph if saved_graph.present?
 
       response

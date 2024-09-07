@@ -33,6 +33,8 @@ module Types
       # Birthday popover??
       date = object[:birthday] || object[:release_date] || object[:first_air_date]
       return '' if date.nil?
+      return '' if date.empty?
+      
       Date.parse(date).year
     end
 

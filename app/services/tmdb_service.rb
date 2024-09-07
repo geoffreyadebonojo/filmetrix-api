@@ -1,30 +1,10 @@
 class TmdbService		
 
-	def self.discover(args)
-		# base = "https://api.themoviedb.org/3/discover/movie?"
-		# certs = "certification=R&certification_country=US"
-		# params = "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate&"
-		# url = base+certs+params+key
-
-		url = root + "/discover/movie?" + key + "&with_people=" + args
-		response = Faraday.get url
-		body = JSON.parse(response.body)
-		binding.pry
-		return [] if body["total_results"] == 0
-	end
-
 	def self.search(term)
 		existing = Search.where('term LIKE ?', "%#{term.upcase.gsub(" ", "%")}%")
+		return {results: existing.map{|x|x.data[:results]}.flatten} if existing.present?
 
-		if existing.present?
-			results = existing.map{|x|
-				x.data[:results]
-			}.flatten
-			
-			return {results: results}
-		end
-
-		url = root + "/search/multi?" + key + query(term, 1)
+		url = root + "/search/multi?" + key + query(term, 1) #1 page
 		response = Faraday.get url
 		body = JSON.parse(response.body)
 		return [] if body["total_results"] == 0
@@ -36,6 +16,44 @@ class TmdbService
 
 		return search.data
 	end
+
+	def self.details(id)
+		entity, id_number = id.split("-")
+		check_entity_type(entity)
+		check_id_is_number(id_number)
+
+		existing = Detail.find_by(id: id)
+		return existing if existing.present?
+		
+		result = fetch_from_Tmdb(id, :details)
+		Detail.create(result)
+	end
+
+	def self.credits(id)
+		entity, id_number = id.split("-")
+		check_entity_type(entity)
+		check_id_is_number(id_number)
+
+		existing = CreditList.find_by(id: id)
+		return existing if existing.present?
+	
+		result = fetch_from_Tmdb(id, :credits)
+		CreditList.create(result)
+	end
+
+	def self.discover(args)
+		# base = "https://api.themoviedb.org/3/discover/movie?"
+		# certs = "certification=R&certification_country=US"
+		# params = "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate&"
+		# url = base+certs+params+key
+
+		url = root + "/discover/movie?" + key + "&with_people=" + args
+		response = Faraday.get url
+		body = JSON.parse(response.body)
+
+		return [] if body["total_results"] == 0
+	end
+
 
 	def self.get_next_page(term)
 		# must always exist
@@ -62,65 +80,38 @@ class TmdbService
 
 		return new_search.data[:results]
 	end
-
-	def self.details(id)
-		entity, id_number = id.split("-")
-		
-		if %w(person movie tv).exclude?(entity)
-			raise "can't search for entity='#{entity}'" 
-		elsif id_number.to_s === 0
-			raise "can't search for id_number='#{id_number}: must be integer'" 
-		else
-			existing = Detail.find_by(id: id)
-			return existing if existing.present?
-
-			url = root + "/#{entity}" + "/#{id_number.to_s}" + "?" + key
-			response = Faraday.get url
-			
-			puts "============================="
-      puts "=>> FETCHED FROM TMDB API <<="
-      puts "============================="
-
-			body = JSON.parse(response.body)
-			body["media_type"] = entity
-			
-			details = Detail.create(
-				id: id,
-				body: body
-			)
-
-			return details
-		end
-	end
-
-	def self.credits(id)
-		entity, id_number = id.split("-")
-		if %w(person movie tv).exclude?(entity) 
-			raise "#{entity} not an accepted entity type"
-		else
-			existing = CreditList.find_by(id: id)
-			return existing if existing.present?
-			
-			url = root + "/#{entity}" + "/#{id_number.to_s}" + "/credits" + "?" + key
-			response = Faraday.get url
-
-			puts "============================="
-      puts "=>> FETCHED FROM TMDB API <<="
-      puts "============================="
-
-			body = JSON.parse(response.body)
-
-			credits_list = CreditList.create({
-				id: id,
-				body: body
-			})
-			
-			return credits_list
-		end
-	end
-
-	private
 	
+	private
+
+	def self.fetch_from_Tmdb(id, type)
+		entity, id_number = id.split("-")
+
+		credit_param = type == :credits ? "/credits" : ""
+		
+		url = "#{root}/#{entity}/#{id_number.to_s}#{credit_param}?#{key}"
+		response = Faraday.get url
+		
+		puts "======================================="
+		puts "==>> #{type.to_s.upcase} FETCHED FROM TMDB API <<=="
+		puts "======================================="
+
+		body = JSON.parse(response.body)
+		body["media_type"] = entity
+		
+		return {
+			id: id,
+			body: body
+		}
+	end
+	
+	def self.check_entity_type(entity)
+		raise ArgumentError if %w(person movie tv).exclude?(entity)
+	end
+
+	def self.check_id_is_number(id_number)
+		raise ArgumentError if id_number.to_s === 0
+	end
+
 	def self.query(term, page_number=1)
 		cleaned = term.downcase
 		"&language=en-US&query=#{cleaned}&page=#{page_number}&include_adult=false"
