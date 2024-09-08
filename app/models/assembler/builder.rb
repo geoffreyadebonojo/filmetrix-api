@@ -46,8 +46,7 @@ class Assembler::Builder
     if anchor[:media_type] == "person"
       credits.each do |credit|
         genres = define_genres(credit)
-
-        if genres.exclude?(10402) && genres.exclude?(99) && genres.present?
+        if genres.nil? || (genres.exclude?(10402) && genres.exclude?(99) && genres.present?)
           if matches.include?(credit[:id])
             matches_for_anchor << credit
           else
