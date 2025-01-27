@@ -15,7 +15,8 @@ class Assembler::Builder
     @inner_links = []
   end
 
-  def assembled_response(credit_list, options={count:30})
+  # NODE SENDCOUNT
+  def assembled_response(credit_list, count)
     assemble_credits(credit_list)
 
     assemble_inner_links
@@ -23,8 +24,8 @@ class Assembler::Builder
 
     {
       id:    id,
-      nodes: @inner_nodes.flatten.first(options[:count]),
-      links: @inner_links.flatten.first(options[:count])
+      nodes: @inner_nodes.flatten.first(count),
+      links: @inner_links.flatten.first(count)
     }
   end
 

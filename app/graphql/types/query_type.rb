@@ -10,6 +10,7 @@ module Types
     
     field :graphData, [Types::D3::GraphEntityType], null: true do
       argument :ids, String
+      argument :count, Integer
     end
 
     field :saveGraph, Types::D3::ResponseType, null: true do
@@ -94,6 +95,7 @@ module Types
     end
     
     def graphData(args)
+      # NODE SENDCOUNT
       return AssembleGraphData.execute(args)
     end
 
@@ -117,6 +119,7 @@ module Types
       saved_graph = SavedGraph.find_by(existing: anchors_list)
       return saved_graph if saved_graph.present?
 
+      # NODE SENDCOUNT
       SavedGraph.create(
         slug: SecureRandom.uuid.split('-').first,
         request_ids: args[:ids],
@@ -208,6 +211,7 @@ module Types
     private
 
     def assemble_graph_data_from_saved(args)
+      # NODE SENDCOUNT
       response = AssembleGraphData.execute(args)
       anchors_list = args[:ids].split(",").zip(args[:counts].split(","))
       saved_graph = SavedGraph.find_by(existing: anchors_list)

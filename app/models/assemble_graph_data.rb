@@ -1,7 +1,9 @@
 class AssembleGraphData
-  def self.execute(args, options={count:30})
+  # NODE SENDCOUNT
+  def self.execute(args)
     @credit_list = []
     @response = []
+    count = args[:count]
 
     all = args[:ids].split(",").map do |id|
       credits = check_credit_cache(id)
@@ -14,7 +16,7 @@ class AssembleGraphData
     end
 
     all.each do |entity|
-      @response << Assembler::Builder.new(entity).assembled_response(@credit_list, options)
+      @response << Assembler::Builder.new(entity).assembled_response(@credit_list, count)
     end
 
     return @response
