@@ -14,6 +14,7 @@ gem "rack-cors"
 gem "json"
 gem "graphql"
 gem 'dotenv-rails'
+gem 'simplecov', require: false, group: :test
 
 gem 'devise'
 gem 'devise-jwt'
