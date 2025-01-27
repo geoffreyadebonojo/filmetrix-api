@@ -1,8 +1,0 @@
-services:
-  api:
-    image: api
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    ports:
-      - "0.0.0.0:3000:3000"
