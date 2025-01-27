@@ -4,11 +4,14 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  graphData(ids: ["person-500,person-287,person-192,movie-137113"], count:5){
+  graphData(ids: "tv-655", key:"6GzCesnexrzgnDv3FfxbHBrb"){
     nodes {
       id
       name
       poster
+      popularity
+      voteAverage
+      voteCount
     }
     links {
       source

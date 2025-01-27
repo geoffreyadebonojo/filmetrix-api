@@ -1,0 +1,16 @@
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL
+Access-Control-Allow-Origin: '*
+
+query {
+  getNextPage(term:"STAR TREK") {
+    id            
+    name         
+    poster
+    entity
+    type
+    knownForDepartment
+  }    
+}

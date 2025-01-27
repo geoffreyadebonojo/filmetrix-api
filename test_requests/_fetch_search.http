@@ -2,11 +2,18 @@ POST http://localhost:3000/graphql
 Content-Type: application/json
 Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
+Access-Control-Allow-Origin: '*
 
 query {
-  search(term:"BRAD PITT") {
+  search(term:"STAR TREK", key:"6GzCesnexrzgnDv3FfxbHBrb") {
     id            
     name         
-    poster         
+    poster
+    entity
+    type
+    popularity
+    voteAverage
+    voteCount
+    knownForDepartment
   }    
 }

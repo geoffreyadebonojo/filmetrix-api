@@ -1,0 +1,13 @@
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL
+
+query {
+  saveGraph(ids:"person-287,person-500",counts:"12,12",userId:"3") {
+    status
+    msg
+    resourceId
+    shareUrl
+  }
+}

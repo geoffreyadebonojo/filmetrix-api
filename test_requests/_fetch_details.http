@@ -4,7 +4,7 @@ Authorization: Bearer xxx
 X-REQUEST-TYPE: GraphQL
 
 query {
-  details(id:"person-500") {
+  details(id:"person-500", key:"6GzCesnexrzgnDv3FfxbHBrb") {
     id
     summary
     year

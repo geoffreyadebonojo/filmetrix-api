@@ -7,6 +7,10 @@ module Types
     field :nodes, [Types::D3::NodeType]
     field :links, [Types::D3::LinkType]
 
+    def ids
+      object[:ids]
+    end
+
     def id
       object[:id]
     end
@@ -18,7 +22,5 @@ module Types
     def links
       object[:links]
     end
-
-
   end
 end

@@ -9,8 +9,30 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     origins "http://localhost:5173"
 
-    resource "*",
+    resource "/graphql",
       headers: :any,
       methods: [:post]
+
+    resource(
+      '/current_user',
+      headers: :any,
+      expose: ['access-token', 'expiry', 'token-type', 'Authorization', 'access-control-expose-headers'],
+      methods: [:get, :patch, :put, :delete, :post, :options, :show]
+    )
+  end
+
+  allow do
+    origins "https://filmetrix.netlify.app"
+
+    resource "/graphql",
+      headers: :any,
+      methods: [:post]
+    
+    resource(
+      '/current_user',
+      headers: :any,
+      expose: ['access-token', 'expiry', 'token-type', 'Authorization', 'access-control-expose-headers'],
+      methods: [:get, :patch, :put, :delete, :post, :options, :show]
+    )
   end
 end

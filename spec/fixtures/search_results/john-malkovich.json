@@ -1,0 +1,183 @@
+[
+  {
+    "id": 6949,
+    "name": "John Malkovich",
+    "original_name": "John Malkovich",
+    "media_type": "person",
+    "adult": false,
+    "popularity": 25.617,
+    "gender": 2,
+    "known_for_department": "Acting",
+    "profile_path": "/5coH0AExljEnbseCXKL4CDOVQj8.jpg",
+    "known_for": [
+      {
+        "backdrop_path": "/jlCMNcyqmHnsLe8AdhoTMg2kbDu.jpg",
+        "id": 39514,
+        "title": "RED",
+        "original_title": "RED",
+        "overview": "After surviving an assault from a squad of hit men, retired CIA black ops agent Frank Moses reassembles his old team for an all-out war. Frank reunites with old Joe, crazy Marvin and wily Victoria to uncover a massive conspiracy that threatens their lives. Only their expert training will allow them to survive a near-impossible mission -- breaking into CIA headquarters.",
+        "poster_path": "/8eeK3OB5PeSRQD7BpZcGZKkehG.jpg",
+        "media_type": "movie",
+        "adult": false,
+        "original_language": "en",
+        "genre_ids": [
+          28,
+          12,
+          35,
+          80,
+          53
+        ],
+        "popularity": 30.375,
+        "release_date": "2010-10-13",
+        "video": false,
+        "vote_average": 6.702,
+        "vote_count": 6590
+      },
+      {
+        "backdrop_path": "/pDKFL1zcHzEpmz4MJA5JJnRbJeD.jpg",
+        "id": 405774,
+        "title": "Bird Box",
+        "original_title": "Bird Box",
+        "overview": "Five years after an ominous unseen presence drives most of society to suicide, a survivor and her two children make a desperate bid to reach safety.",
+        "poster_path": "/rGfGfgL2pEPCfhIvqHXieXFn7gp.jpg",
+        "media_type": "movie",
+        "adult": false,
+        "original_language": "en",
+        "genre_ids": [
+          27,
+          53,
+          18
+        ],
+        "popularity": 43.194,
+        "release_date": "2018-12-13",
+        "video": false,
+        "vote_average": 6.8,
+        "vote_count": 9775
+      },
+      {
+        "backdrop_path": "/hjUrsPQMyL0gT6FK1hGUbw9fCuB.jpg",
+        "id": 492,
+        "title": "Being John Malkovich",
+        "original_title": "Being John Malkovich",
+        "overview": "One day at work, unsuccessful puppeteer Craig finds a portal into the head of actor John Malkovich. The portal soon becomes a passion for anybody who enters its mad and controlling world of overtaking another human body.",
+        "poster_path": "/vKVUsumbCzK5Kn3aDpKM4EizKCA.jpg",
+        "media_type": "movie",
+        "adult": false,
+        "original_language": "en",
+        "genre_ids": [
+          35,
+          18,
+          14
+        ],
+        "popularity": 30.623,
+        "release_date": "1999-10-29",
+        "video": false,
+        "vote_average": 7.412,
+        "vote_count": 4276
+      }
+    ]
+  },
+  {
+    "backdrop_path": "/hjUrsPQMyL0gT6FK1hGUbw9fCuB.jpg",
+    "id": 492,
+    "title": "Being John Malkovich",
+    "original_title": "Being John Malkovich",
+    "overview": "One day at work, unsuccessful puppeteer Craig finds a portal into the head of actor John Malkovich. The portal soon becomes a passion for anybody who enters its mad and controlling world of overtaking another human body.",
+    "poster_path": "/vKVUsumbCzK5Kn3aDpKM4EizKCA.jpg",
+    "media_type": "movie",
+    "adult": false,
+    "original_language": "en",
+    "genre_ids": [
+      35,
+      18,
+      14
+    ],
+    "popularity": 30.623,
+    "release_date": "1999-10-29",
+    "video": false,
+    "vote_average": 7.412,
+    "vote_count": 4276
+  },
+  {
+    "id": 4643887,
+    "name": "John Malkovich",
+    "original_name": "John Malkovich",
+    "media_type": "person",
+    "adult": false,
+    "popularity": 0.001,
+    "gender": 0,
+    "profile_path": null,
+    "known_for": []
+  },
+  {
+    "id": 4398771,
+    "name": "John Malkovich Junior",
+    "original_name": "John Malkovich Junior",
+    "media_type": "person",
+    "adult": false,
+    "popularity": 0.001,
+    "gender": 0,
+    "known_for_department": "Acting",
+    "profile_path": null,
+    "known_for": [
+      {
+        "backdrop_path": "/cCBEVUiSLNXgKexCLx5ELORrqsk.jpg",
+        "id": 1210343,
+        "title": "Uma Nova Paixão",
+        "original_title": "Uma Nova Paixão",
+        "overview": "",
+        "poster_path": "/8zyFntBNBHQ2THUeW58uK5mAByD.jpg",
+        "media_type": "movie",
+        "adult": false,
+        "original_language": "pt",
+        "genre_ids": [
+          99
+        ],
+        "popularity": 0.001,
+        "release_date": "",
+        "video": false,
+        "vote_average": 0.0,
+        "vote_count": 0
+      }
+    ]
+  },
+  {
+    "backdrop_path": null,
+    "id": 887343,
+    "title": "Being Related to John Malkovich",
+    "original_title": "Biti u rodu s Johnom Malkovichem",
+    "overview": "Father and son poets embark on a quest to figure out what hides between the lines of their relationship while exploring their bloodline and an old family myth of a possible kinship with the Hollywood legend. Recollecting their past home, which now exists only in old VHS tapes, Luka and Željko take a trip down memory lane, while also setting out on a path to discovering what the future holds for them. As they connect the dots of their family tree, a mash-up of very different characters is introduced, including a book-van librarian, an old farmer, a John Malkovich double from Croatia, and people from all over the world whose last name is Malković. But, digging up one’s family history always carries a certain risk – will father and son lose their relationship while trying to improve it?",
+    "poster_path": "/mYMZVPe57ZEappzBidzEPFPpLdA.jpg",
+    "media_type": "movie",
+    "adult": false,
+    "original_language": "en",
+    "genre_ids": [
+      99
+    ],
+    "popularity": 0.001,
+    "release_date": "",
+    "video": false,
+    "vote_average": 0.0,
+    "vote_count": 0
+  },
+  {
+    "backdrop_path": null,
+    "id": 385394,
+    "title": "Le paradoxe de John Malkovich",
+    "original_title": "Le paradoxe de John Malkovich",
+    "overview": "",
+    "poster_path": null,
+    "media_type": "movie",
+    "adult": false,
+    "original_language": "es",
+    "genre_ids": [
+      18,
+      99
+    ],
+    "popularity": 0.571,
+    "release_date": "2014-03-02",
+    "video": false,
+    "vote_average": 0.0,
+    "vote_count": 0
+  }
+]
