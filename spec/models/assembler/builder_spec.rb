@@ -23,7 +23,7 @@ RSpec.describe Assembler::Builder, type: :model do
     inc = eval(File.read("spec/fixtures/builder/incoming-graph-data-one-entity.json").gsub("null", "nil")).first.deep_symbolize_keys
 
     builder = Assembler::Builder.new({
-      anchor: inc[:anchor], 
+      anchor: Detail.new(inc[:anchor]), 
       credits: inc[:credtis]}
     )
 

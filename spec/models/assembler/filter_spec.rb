@@ -5,7 +5,7 @@ RSpec.describe Assembler::Filter, type: :model do
 
   describe "filters" do
     movie_credits = eval(File.read("spec/fixtures/filter/oblivion-credits.json").gsub("null", "nil"))
-    filter = Assembler::Filter.new(movie_credits)
+    filter = Assembler::Filter.new(movie_credits, "film")
         
     describe "by department" do
       it "actors" do

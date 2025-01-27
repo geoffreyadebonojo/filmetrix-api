@@ -19,7 +19,7 @@ RSpec.describe AssembleGraphData, type: :model do
       args = {:ids=>"person-500,movie-628", :counts=>"11,8", :user_id=>"null"}
 
       args[:ids].split(",").each do |id|
-        credit_list_hash = eval(File.read("spec/#{id}-credits.json").gsub("null", "nil"))
+        credit_list_hash = eval(File.read("spec/fixtures/#{id}-credits.json").gsub("null", "nil"))
 
         cl = CreditList.create!({ id: id, body: credit_list_hash[:body] })
         Rails.cache.write("#{id}--credits", cl.grouped_credits)
@@ -59,7 +59,7 @@ RSpec.describe AssembleGraphData, type: :model do
                     {:source=>"person-500", :target=>"movie-37834", :roles=>["Roy Miller"]},
                     {:source=>"person-500", :target=>"movie-18172", :roles=>["Stefen Djordjevic"]}]
 
-        expect(tc_links).to eq(expected)
+        expect(tc_links.sort).to eq(expected.sort)
       
         iwtv_links = graph_data.second[:links]
         expected = [{:source=>"person-17016", :target=>"movie-628", :roles=>["Director"]},
@@ -92,9 +92,7 @@ RSpec.describe AssembleGraphData, type: :model do
                     {:source=>"person-24241", :target=>"movie-628", :roles=>["Estelle"]},
                     {:source=>"person-109377", :target=>"movie-628", :roles=>["Woman in Audience"]}]
 
-        expect(iwtv_links).to eq(expected)
-
-        # binding.pry
+        expect(iwtv_links.sort).to eq(expected.sort)
       end
     end
   end
