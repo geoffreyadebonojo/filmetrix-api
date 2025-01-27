@@ -13,12 +13,12 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
       headers: :any,
       methods: [:post]
 
-    resource(
-      '/current_user',
-      headers: :any,
-      expose: ['access-token', 'expiry', 'token-type', 'Authorization', 'access-control-expose-headers'],
-      methods: [:get, :patch, :put, :delete, :post, :options, :show]
-    )
+    # resource(
+    #   '/current_user',
+    #   headers: :any,
+    #   expose: ['access-token', 'expiry', 'token-type', 'Authorization', 'access-control-expose-headers'],
+    #   methods: [:get, :patch, :put, :delete, :post, :options, :show]
+    # )
   end
 
   allow do
@@ -28,11 +28,11 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
       headers: :any,
       methods: [:post]
     
-    resource(
-      '/current_user',
-      headers: :any,
-      expose: ['access-token', 'expiry', 'token-type', 'Authorization', 'access-control-expose-headers'],
-      methods: [:get, :patch, :put, :delete, :post, :options, :show]
-    )
+    # resource(
+    #   '/current_user',
+    #   headers: :any,
+    #   expose: ['access-token', 'expiry', 'token-type', 'Authorization', 'access-control-expose-headers'],
+    #   methods: [:get, :patch, :put, :delete, :post, :options, :show]
+    # )
   end
 end
