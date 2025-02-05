@@ -35,7 +35,6 @@ class Assembler::Builder
     if node[:media_type] == "tv" 
       node[:genres].map{|x|x[:id]}
     elsif node[:media_type] == "movie"
-      # node[:genre_ids]
       node[:genre_ids].map{|x|genre_name(x)}
     end
   end
