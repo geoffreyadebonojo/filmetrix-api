@@ -3,7 +3,12 @@ class AssembleGraphData
   def self.execute(args)
     @credit_list = []
     @response = []
-    count = args[:count]
+    
+    if args[:count].is_a?(Integer)
+      count = args[:count]
+    else
+      count = args[:count].split(",").map(&:to_i).sum
+    end
 
     all = args[:ids].split(",").map do |id|
       credits = check_credit_cache(id)

@@ -15,8 +15,7 @@ module Types
 
     field :saveGraph, Types::D3::ResponseType, null: true do
       argument :ids, String
-      argument :counts, String
-      argument :user_id, String
+      argument :count, String
     end
 
     field :findBySlug, Types::D3::SlugGraphType, null: true do
@@ -101,11 +100,6 @@ module Types
 
     def saveGraph(args)
       saved_graph = find_or_create(args)
-      # user = User.find_by(id: args[:user_id])
-
-      # if user.present? && !user.saved_graphs.pluck(:slug).include?(saved_graph.slug)
-      #   user.saved_graphs << saved_graph
-      # end
 
       return {
         resource_id: saved_graph.id,
@@ -114,8 +108,8 @@ module Types
     end
 
     def find_or_create(args)
-      anchors_list = args[:ids].split(",").zip(args[:counts].split(","))      
-
+      anchors_list = args[:ids].split(",").zip(args[:count].split(","))      
+      
       saved_graph = SavedGraph.find_by(existing: anchors_list)
       return saved_graph if saved_graph.present?
 
@@ -123,7 +117,7 @@ module Types
       SavedGraph.create(
         slug: SecureRandom.uuid.split('-').first,
         request_ids: args[:ids],
-        body: assemble_graph_data_from_saved(args[:ids]),
+        body: assemble_graph_data_from_saved(args),
         existing: anchors_list
       )
     end
@@ -213,7 +207,7 @@ module Types
     def assemble_graph_data_from_saved(args)
       # NODE SENDCOUNT
       response = AssembleGraphData.execute(args)
-      anchors_list = args[:ids].split(",").zip(args[:counts].split(","))
+      anchors_list = args[:ids].split(",").zip(args[:count].split(","))
       saved_graph = SavedGraph.find_by(existing: anchors_list)
 
       return saved_graph if saved_graph.present?
