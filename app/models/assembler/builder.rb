@@ -1,7 +1,7 @@
 class Assembler::Builder
   attr_reader :incoming, :id, :anchor, :credits,
               :matches_for_anchor, :other,
-              :inner_nodes, :inner_list, :inner_links
+              :inner_nodes, :inner_links, :inner_list
 
   def initialize(incoming)
     @id = incoming[:anchor].id
@@ -17,6 +17,9 @@ class Assembler::Builder
 
   # NODE SENDCOUNT
   def assembled_response(credit_list, count)
+
+    # sort_credits_to_surface_overlaps(credit_list)
+
     assemble_credits(credit_list)
 
     assemble_inner_links
@@ -30,6 +33,42 @@ class Assembler::Builder
   end
 
   private
+  
+  # def sort_credits_to_surface_overlaps(incoming)
+  #   credit_list = incoming.flatten.filter do |cred|
+  #     if cred[:media_type] != "person"
+  #       genres = define_genres(cred)
+  #       genres.nil? || (genres.exclude?(10402) && genres.exclude?(99) && genres.present?)
+  #     else
+  #       true
+  #     end
+  #   end
+
+  #   seen  = []
+  #   other = []
+  #   olm = []
+  #   olp = []
+
+  #   credit_list.flatten.each do |credit|
+  #     if seen.include?(credit[:id])
+  #       if ["movie", "tv"].include?(credit[:media_type])
+  #         olm << credit
+  #       else
+  #         olp << credit
+  #       end
+  #     else
+  #       other << credit
+  #     end
+  #     seen << credit[:id]
+  #   end
+
+  #   other.unshift(olm)
+  #   other.unshift(olp)
+
+  #   puts "put"
+
+  #   @inner_list = other
+  # end
 
   def define_genres(node)
     if node[:media_type] == "tv" 
@@ -44,20 +83,14 @@ class Assembler::Builder
 
     matches = Assembler::Matcher.new(credit_list).found_matches
 
-    if anchor[:media_type] == "person"
-      credits.each do |credit|
-        genres = define_genres(credit)
-        if genres.nil? || (genres.exclude?(10402) && genres.exclude?(99) && genres.present?)
-          if matches.include?(credit[:id])
-            matches_for_anchor << credit
-          else
-            other << credit
-          end
-        end
-      end
-    else
-      credits.each.map do |y|
-        other << y
+    credits.each do |credit|
+      genres = define_genres(credit)
+      next unless genres.nil? || (genres.exclude?(10402) && genres.exclude?(99) && genres.present?)
+        
+      if matches.include?(credit[:id])
+        matches_for_anchor << credit
+      else
+        other << credit
       end
     end
     
@@ -122,9 +155,10 @@ class Assembler::Builder
   end
 
   def filtered
-    return inner_list if anchor[:media_type] == "person"
-    # can gather with args now
-    Assembler::Filter.new(inner_list, anchor[:media_type]).gather
+    # return inner_list if anchor[:media_type] == "person"
+    # # can gather with args now
+    # Assembler::Filter.new(inner_list, anchor[:media_type]).gather
+    @inner_list
   end
 
   def define_anchor
