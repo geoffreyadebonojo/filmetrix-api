@@ -11,10 +11,12 @@ class TmdbService
 		body = JSON.parse(response.body)
 		return [] if body["total_results"] == 0
 
-		search = Search.create(
-			term: term,
-			body: body
-		)
+		if Rails.env.development?
+			search = Search.create(
+				term: term,
+				body: body
+			)
+		end
 
 		return search.data
 	end
