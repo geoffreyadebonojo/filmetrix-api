@@ -1,8 +1,10 @@
 class TmdbService		
 
 	def self.search(term)
-		existing = Search.where('term LIKE ?', "%#{term.upcase.gsub(" ", "%")}%")
-		return {results: existing.map{|x|x.data[:results]}.flatten} if existing.present?
+		if Rails.env.development?
+			existing = Search.where('term LIKE ?', "%#{term.upcase.gsub(" ", "%")}%")
+			return {results: existing.map{|x|x.data[:results]}.flatten} if existing.present?
+		end
 
 		url = root + "/search/multi?" + key + query(term, 1) #1 page
 		response = Faraday.get url
