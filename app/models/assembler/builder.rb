@@ -4,8 +4,6 @@ class Assembler::Builder
               :inner_nodes, :inner_links, :inner_list,
               :accepted_depts, :dept_limits
 
-  attr_accessor :counter
-
   def initialize(incoming)
     @id = incoming[:anchor].id
     @anchor = incoming[:anchor].data
