@@ -1,7 +1,8 @@
 class Assembler::Builder
   attr_reader :incoming, :id, :anchor, :credits,
               :matches_for_anchor, :other,
-              :inner_nodes, :inner_list, :inner_links
+              :inner_nodes, :inner_links, :inner_list,
+              :accepted_depts, :dept_limits
 
   def initialize(incoming)
     @id = incoming[:anchor].id
@@ -15,12 +16,10 @@ class Assembler::Builder
     @inner_links = []
   end
 
-  # NODE SENDCOUNT
   def assembled_response(credit_list, count)
-    assemble_credits(credit_list)
-
-    assemble_inner_links
-    assemble_inner_nodes
+    assemble_credits!(credit_list)
+    assemble_inner_links!
+    assemble_inner_nodes!
 
     {
       id:    id,
@@ -39,40 +38,37 @@ class Assembler::Builder
     end
   end
 
-  def assemble_credits(credit_list)
+  def assemble_credits!(credit_list)
     define_anchor
 
     matches = Assembler::Matcher.new(credit_list).found_matches
 
-    if anchor[:media_type] == "person"
-      credits.each do |credit|
-        genres = define_genres(credit)
-        if genres.nil? || (genres.exclude?(10402) && genres.exclude?(99) && genres.present?)
-          if matches.include?(credit[:id])
-            matches_for_anchor << credit
-          else
-            other << credit
-          end
-        end
-      end
-    else
-      credits.each.map do |y|
-        other << y
+    credits.each do |credit|
+      genres = define_genres(credit)
+      next unless certain_genres_excluded(genres)
+      
+      if matches.include?(credit[:id])
+        matches_for_anchor << credit
+      else
+        other << credit
       end
     end
     
-    # matches go in first
     @inner_list += matches_for_anchor
     @inner_list += other
   end
 
-  def assemble_inner_links
+  def certain_genres_excluded(genres)
+    genres.nil? || (genres.exclude?(10402) && genres.exclude?(99) && genres.present?)
+  end
+
+  def assemble_inner_links!
     filtered.each do |link|
       single_link(link)
     end
   end
 
-  def assemble_inner_nodes
+  def assemble_inner_nodes!
     @inner_nodes << filtered.map do |node|
       single_node(node)
     end.flatten
@@ -122,9 +118,15 @@ class Assembler::Builder
   end
 
   def filtered
-    return inner_list if anchor[:media_type] == "person"
-    # can gather with args now
-    Assembler::Filter.new(inner_list, anchor[:media_type]).gather
+    # Maybe in the future, include lower ranking connections
+    # like dolly grip or whatever, who don't have posters
+    # without counting them against the nodelimit
+    # by rendering them as just dots
+    # or
+    # collapse them all into a single node
+
+    inner_list
+    # Assembler::Filter.new(inner_list, anchor[:media_type]).gather
   end
 
   def define_anchor
