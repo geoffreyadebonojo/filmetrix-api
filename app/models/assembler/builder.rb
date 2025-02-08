@@ -1,8 +1,10 @@
 class Assembler::Builder
   attr_reader :incoming, :id, :anchor, :credits,
               :matches_for_anchor, :other,
-              :inner_nodes, :inner_links, :inner_list,
+              :inner_nodes, :inner_links,
               :accepted_depts, :dept_limits
+
+  attr_accessor :inner_list
 
   def initialize(incoming)
     @id = incoming[:anchor].id
@@ -23,8 +25,8 @@ class Assembler::Builder
 
     {
       id:    id,
-      nodes: @inner_nodes.flatten.first(count),
-      links: @inner_links.flatten.first(count)
+      nodes: inner_nodes.flatten.first(count),
+      links: inner_links.flatten.first(count)
     }
   end
 
@@ -43,6 +45,12 @@ class Assembler::Builder
 
     matches = Assembler::Matcher.new(credit_list).found_matches
 
+    dirs = []
+    wris = []
+    scrn = []
+    pros = []
+    acts = []
+
     credits.each do |credit|
       genres = define_genres(credit)
       next unless certain_genres_excluded(genres)
@@ -50,12 +58,35 @@ class Assembler::Builder
       if matches.include?(credit[:id])
         matches_for_anchor << credit
       else
-        other << credit
+        if credit[:roles].include?("Director") && dirs.length < 1
+          dirs << credit
+        elsif credit[:roles].include?("Writer") && wris.length < 1
+          wris << credit
+        elsif (credit[:roles].include?("Screenplay") || credit[:roles].include?("Novel")) && scrn.length < 1
+          scrn << credit
+        elsif credit[:roles].include?("Producer") && pros.length < 1
+          pros << credit
+        elsif credit[:departments].include?("Acting")
+          acts << credit
+        else
+          other << credit
+        end
       end
     end
-    
+
+    credits = [
+      dirs, 
+      wris,
+      scrn, 
+      pros, 
+      acts, 
+      other
+    ].flatten
+
+    # binding.pry
+
     @inner_list += matches_for_anchor
-    @inner_list += other
+    @inner_list += credits
   end
 
   def certain_genres_excluded(genres)
