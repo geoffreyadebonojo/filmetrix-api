@@ -16,9 +16,10 @@ class TmdbService
 				term: term,
 				body: body
 			)
+			return search.data
+		else
+			return body.deep_symbolize_keys
 		end
-
-		return search.data
 	end
 
 	def self.details(id)

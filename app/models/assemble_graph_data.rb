@@ -1,14 +1,7 @@
 class AssembleGraphData
-  # NODE SENDCOUNT
   def self.execute(args)
     @credit_list = []
     @response = []
-    
-    if args[:count].is_a?(Integer)
-      count = args[:count]
-    else
-      count = args[:count].split(",").map(&:to_i).sum
-    end
 
     all = args[:ids].split(",").map do |id|
       credits = check_credit_cache(id)
@@ -20,6 +13,9 @@ class AssembleGraphData
         credits: credits }
     end
 
+    count = 100
+
+    # TODO: refactor for efficiency
     all.each do |entity|
       @response << Assembler::Builder.new(entity).assembled_response(@credit_list, count)
     end
