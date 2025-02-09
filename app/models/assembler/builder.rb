@@ -36,7 +36,7 @@ class Assembler::Builder
     if node[:media_type] == "tv" 
       node[:genres].map{|x|x[:id]}
     elsif node[:media_type] == "movie"
-      node[:genre_ids]
+      node[:genre_ids].map{|x|genre_name(x)}
     end
   end
 
@@ -52,8 +52,7 @@ class Assembler::Builder
     acts = []
 
     credits.each do |credit|
-      genres = define_genres(credit)
-      next unless certain_genres_excluded(genres)
+      next if certain_genres_excluded(credit[:genres])
       
       if matches.include?(credit[:id])
         matches_for_anchor << credit
@@ -83,14 +82,17 @@ class Assembler::Builder
       other
     ].flatten
 
-    # binding.pry
-
     @inner_list += matches_for_anchor
     @inner_list += credits
   end
 
-  def certain_genres_excluded(genres)
-    genres.nil? || (genres.exclude?(10402) && genres.exclude?(99) && genres.present?)
+  def certain_genres_excluded(genre_codes)
+    return false if genre_codes.nil? || genre_codes.empty?
+
+    genres = define_genres(genre_codes)
+
+    return true if genres.include?(10402)
+    return true if genres.exclude?(99)
   end
 
   def assemble_inner_links!
@@ -135,7 +137,7 @@ class Assembler::Builder
       }
     else
 
-      obj[:type] = define_genres(node) #node[:genre_ids].map{|x|genre_name(x)}
+      obj[:type] = define_genres(node)
       obj[:score] = {
         popularity: node[:popularity],
         vote_average: node[:vote_average],

@@ -62,6 +62,7 @@ module Types
     end
     
     def graphData(args)
+      binding.pry
       return AssembleGraphData.execute(args)
     end
 
