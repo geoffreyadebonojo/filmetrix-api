@@ -10,7 +10,6 @@ class Assembler::Builder
     @id = incoming[:anchor].id
     @anchor = incoming[:anchor].data
     @credits = incoming[:credits]
-
     @inner_list = []
     @inner_nodes = []
     @matches_for_anchor = []
@@ -52,8 +51,13 @@ class Assembler::Builder
     acts = []
 
     credits.each do |credit|
-      next if certain_genres_excluded(credit[:genres])
-      
+      if !credit[:genre_ids].nil?
+        next if credit[:genre_ids].empty?
+        next if credit[:genre_ids].include?(10402)
+        next if credit[:genre_ids].include?(99)
+        credit[:genres] = credit[:genre_ids].map{|x|genre_name(x)}
+      end
+
       if matches.include?(credit[:id])
         matches_for_anchor << credit
       else
@@ -73,26 +77,10 @@ class Assembler::Builder
       end
     end
 
-    credits = [
-      dirs, 
-      wris,
-      scrn, 
-      pros, 
-      acts, 
-      other
-    ].flatten
+    sorted_credits = [dirs, wris,scrn, pros, acts, other].flatten
 
-    @inner_list += matches_for_anchor
-    @inner_list += credits
-  end
-
-  def certain_genres_excluded(genre_codes)
-    return false if genre_codes.nil? || genre_codes.empty?
-
-    genres = define_genres(genre_codes)
-
-    return true if genres.include?(10402)
-    return true if genres.exclude?(99)
+    # @inner_list = filter_by_genre( [matches_for_anchor, sorted_credits].flatten )
+    @inner_list = [matches_for_anchor, sorted_credits].flatten
   end
 
   def assemble_inner_links!
@@ -136,7 +124,6 @@ class Assembler::Builder
         popularity: node[:popularity]
       }
     else
-
       obj[:type] = define_genres(node)
       obj[:score] = {
         popularity: node[:popularity],
@@ -158,7 +145,7 @@ class Assembler::Builder
     # or
     # collapse them all into a single node
 
-    inner_list
+    @inner_list
     # Assembler::Filter.new(inner_list, anchor[:media_type]).gather
   end
 

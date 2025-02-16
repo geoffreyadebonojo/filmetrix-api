@@ -10,12 +10,10 @@ module Types
     
     field :graphData, [Types::D3::GraphEntityType], null: true do
       argument :ids, String
-      argument :count, Integer
     end
 
     field :saveGraph, Types::D3::ResponseType, null: true do
       argument :ids, String
-      argument :count, String
     end
 
     field :findBySlug, Types::D3::SlugGraphType, null: true do
@@ -62,7 +60,6 @@ module Types
     end
     
     def graphData(args)
-      binding.pry
       return AssembleGraphData.execute(args)
     end
 
@@ -75,8 +72,17 @@ module Types
       }      
     end
 
+    
+    def findBySlug(args)
+      result = SavedGraph.find_by(slug: args[:slug])
+      return result if result.present? 
+      return []
+    end
+    
+    private
+
     def find_or_create(args)
-      anchors_list = args[:ids].split(",").zip(args[:count].split(","))      
+      anchors_list = args[:ids].split(";").map{|n| n.split(",")}      
       
       saved_graph = SavedGraph.find_by(existing: anchors_list)
       return saved_graph if saved_graph.present?
@@ -88,14 +94,6 @@ module Types
         existing: anchors_list
       )
     end
-    
-    def findBySlug(args)
-      result = SavedGraph.find_by(slug: args[:slug])
-      return result if result.present? 
-      return []
-    end
-
-    private
 
     def assemble_graph_data_from_saved(args)
       response = AssembleGraphData.execute(args)

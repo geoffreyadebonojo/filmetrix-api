@@ -1,9 +1,10 @@
 class AssembleGraphData
   def self.execute(args)
+    @ids = args[:ids].split(",")
     @credit_list = []
     @response = []
 
-    all = args[:ids].split(",").map do |id|
+    all = @ids.map do |id|
       credits = check_credit_cache(id)
       @credit_list << credits
 
