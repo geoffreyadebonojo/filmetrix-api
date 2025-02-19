@@ -14,8 +14,7 @@ module Types
     field :known_for_department, String
 
     def entity
-      # object[:entity]
-      object[:id].split("-")[0]
+      object[:entity]
     end
 
     def id

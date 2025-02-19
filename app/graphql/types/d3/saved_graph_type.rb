@@ -12,5 +12,6 @@ module Types
     def posters
       object[:posters]
     end
+
   end
 end

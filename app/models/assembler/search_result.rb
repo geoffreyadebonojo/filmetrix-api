@@ -27,7 +27,7 @@ class Assembler::SearchResult
 
   def media_entity(item)
     node = OpenStruct.new
-    node.media_type = item[:media_type]
+    node.entity = item[:media_type]
     node.id = [item[:media_type], item[:id]].join("-")
     node.type = item[:genre_ids].present? ? item[:genre_ids].map{|x|genre_name(x)}.compact : []
     node.name = item[:title] || item[:original_name]
@@ -45,7 +45,7 @@ class Assembler::SearchResult
   
   def person_entity(item)
     node = OpenStruct.new
-    node.media_type = item[:media_type]
+    node.entity = item[:media_type]
     node.id = [item[:media_type],item[:id]].join("-")
     node.type = []
     node.name = item[:name]

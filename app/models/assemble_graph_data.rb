@@ -1,15 +1,14 @@
 class AssembleGraphData
-  def self.execute(args)
-    @ids = args[:ids].split(",")
+  def self.execute(ids)
+    @ids = ids
     @credit_list = []
     @response = []
 
     all = @ids.map do |id|
+      details = check_detail_cache(id)
       credits = check_credit_cache(id)
       @credit_list << credits
 
-      details = check_detail_cache(id)
-      
       { anchor: details,
         credits: credits }
     end
@@ -37,10 +36,10 @@ class AssembleGraphData
   def self.check_detail_cache(id)
     begin 
       Rails.cache.fetch("#{id}--detail") do
-        TmdbService.details(id)
+        TmdbService.details(id).data
       end
     rescue
-      TmdbService.details(id)
+      TmdbService.details(id).data
     end
   end
 end

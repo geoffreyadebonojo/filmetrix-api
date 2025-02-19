@@ -14,6 +14,7 @@ module Types
 
     field :saveGraph, Types::D3::ResponseType, null: true do
       argument :ids, String
+      argument :lockedNodes, String
     end
 
     field :findBySlug, Types::D3::SlugGraphType, null: true do
@@ -60,11 +61,22 @@ module Types
     end
     
     def graphData(args)
-      return AssembleGraphData.execute(args)
+      ids = args[:ids].split(",")
+      return AssembleGraphData.execute(ids)
+    end
+
+    def findBySlug(args)
+      result = SavedGraph.find_by(slug: args[:slug])
+
+      return result if result.present? 
+      return []
     end
 
     def saveGraph(args)
-      saved_graph = find_or_create(args)
+      positions = args[:lockedNodes].split(";").map{|n|n.split(",")}
+      entries = args[:ids].split(";").map{|n| n.split(",")}      
+
+      saved_graph = find_or_create(entries, positions)
 
       return {
         resource_id: saved_graph.id,
@@ -72,37 +84,22 @@ module Types
       }      
     end
 
-    
-    def findBySlug(args)
-      result = SavedGraph.find_by(slug: args[:slug])
-      return result if result.present? 
-      return []
-    end
-    
     private
 
-    def find_or_create(args)
-      anchors_list = args[:ids].split(";").map{|n| n.split(",")}      
-      
-      saved_graph = SavedGraph.find_by(existing: anchors_list)
+    def find_or_create(entries, position)
+      # address this later
+      saved_graph = SavedGraph.find_by(existing: entries)
       return saved_graph if saved_graph.present?
+
+      ids = entries.map{|n| n.first}
 
       SavedGraph.create(
         slug: SecureRandom.uuid.split('-').first,
-        request_ids: args[:ids],
-        body: assemble_graph_data_from_saved(args),
-        existing: anchors_list
+        request_ids: ids,
+        body: AssembleGraphData.execute(ids),
+        existing: entries,
+        position: position
       )
-    end
-
-    def assemble_graph_data_from_saved(args)
-      response = AssembleGraphData.execute(args)
-      anchors_list = args[:ids].split(",").zip(args[:count].split(","))
-      saved_graph = SavedGraph.find_by(existing: anchors_list)
-
-      return saved_graph if saved_graph.present?
-
-      response
     end
   end
 end

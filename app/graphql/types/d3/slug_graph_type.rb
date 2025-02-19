@@ -2,8 +2,13 @@
 
 module Types
   class D3::SlugGraphType < Types::BaseObject
+    field :position, [[String]]
     field :existing, [[String]]
     field :data, [Types::D3::GraphEntityType]
+
+    def position
+      object.position
+    end
 
     def existing
       object.existing
