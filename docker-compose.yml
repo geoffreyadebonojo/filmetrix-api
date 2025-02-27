@@ -22,5 +22,12 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:password@db:5432/filmetrix_development
 
+  fe:
+    build:
+      context: ../filmetrix-fe
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "5173:5173"
+
 volumes:
   db_data:
