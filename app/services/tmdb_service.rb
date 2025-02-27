@@ -46,18 +46,21 @@ class TmdbService
 		CreditList.create(result)
 	end
 
-	def self.discover(args)
-		# base = "https://api.themoviedb.org/3/discover/movie?"
-		# certs = "certification=R&certification_country=US"
-		# params = "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate&"
-		# url = base+certs+params+key
+	# def self.discover(args)
+	# 	# base = "https://api.themoviedb.org/3/discover/movie?"
+	# 	# certs = "certification=R&certification_country=US"
+	# 	# params = "&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate&"
+	# 	# url = base+certs+params+key
 
-		url = root + "/discover/movie?" + key + "&with_people=" + args
-		response = Faraday.get url
-		body = JSON.parse(response.body)
+	# 	# args = 'tom%20cruise'
+	# 	# url = root + "/discover/movie?" + key + "&with_people=" + args
 
-		return [] if body["total_results"] == 0
-	end
+	# 	# url = "https://api.themoviedb.org/3/discover/movie?api_key=b286f7b89c4c6fbdc0182b76d70624ac&include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_people=tom%20cruise%2C%20brad%20pitt"
+	# 	response = Faraday.get url
+	# 	body = JSON.parse(response.body)
+
+	# 	return [] if body["total_results"] == 0
+	# end
 
 
 	def self.get_next_page(term)

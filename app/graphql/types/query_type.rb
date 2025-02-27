@@ -17,6 +17,12 @@ module Types
       argument :lockedNodes, String
     end
 
+    field :updateGraph, Types::D3::ResponseType, null: true do
+      argument :id, String
+      argument :existing, String
+      argument :lockedNodes, String
+    end
+
     field :findBySlug, Types::D3::SlugGraphType, null: true do
       argument :slug, String
     end
@@ -25,16 +31,16 @@ module Types
       argument :term, String
     end
 
-    field :discover, [Types::D3::NodeType], null: true do
-      argument :terms, String
-    end
+    # field :discover, [Types::D3::NodeType], null: true do
+    #   argument :terms, String
+    # end
 
     #####################################################
 
-    def discover(args)
-      discovered = TmdbService.discover(args[:terms])
-      return discovered
-    end
+    # def discover(args)
+    #   discovered = TmdbService.discover(args[:terms])
+    #   return discovered
+    # end
 
     def getNextPage(args) 
       results = TmdbService.get_next_page(args[:term])
@@ -77,6 +83,24 @@ module Types
       entries = args[:ids].split(";").map{|n| n.split(",")}      
 
       saved_graph = find_or_create(entries, positions)
+
+      return {
+        resource_id: saved_graph.id,
+        share_url: saved_graph.filmetrix_link
+      }      
+    end
+
+    def updateGraph(args)
+      slug = args[:id]
+      existing = args[:existing].split(";").map{|n| n.split(",")}      
+      position = args[:lockedNodes].split(";").map{|n|n.split(",")}
+
+      saved_graph = SavedGraph.find_by(slug: args[:id])
+
+      saved_graph.update(
+        existing: existing,
+        position: position
+      )
 
       return {
         resource_id: saved_graph.id,
