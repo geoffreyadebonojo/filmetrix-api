@@ -26,7 +26,7 @@ Rails.application.configure do
     }
   else
     config.action_controller.perform_caching = true
-    config.cache_store = :memory
+    config.cache_store = :memory_store
   end
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
