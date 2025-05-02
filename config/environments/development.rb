@@ -26,7 +26,7 @@ Rails.application.configure do
     }
   else
     config.action_controller.perform_caching = true
-    config.cache_store = :memory
+    config.cache_store = :memory_store
   end
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
@@ -64,4 +64,5 @@ Rails.application.configure do
 
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
+  config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 end

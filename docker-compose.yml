@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: filmetrix_development
+
+  api:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/filmetrix_development
+
+  fe:
+    build:
+      context: ../filmetrix-fe
+    command: bash -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    volumes:
+      - ../filmetrix-fe:/app
+      - /app/node_modules
+
+    ports:
+      - "5173:5173"
+
+volumes:
+  db_data:

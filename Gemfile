@@ -27,4 +27,5 @@ end
 
 group :development do
   gem "graphiql-rails", git: "https://github.com/rmosolgo/graphiql-rails.git", branch: "master"
+  gem "listen"
 end
